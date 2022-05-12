@@ -30,6 +30,18 @@ function parseRecipe(parseResult: ParseResult) {
   }
   recipeCard?.append(cardTitle);
 
+  if (parseResult.metadata["tags"]) {
+    let tags = parseResult.metadata["tags"]
+    let tagArray = tags.split(",")
+    let cardFooter = document.getElementById("recipeCardFooter");
+    for (let tag of tagArray) {
+      let tagBadge = document.createElement("span");
+      tagBadge.className = "badge rounded-pill bg-primary";
+      tagBadge.innerText = `#${tag}`;
+      cardFooter?.append(tagBadge);
+    }
+  }
+
   let stepList = document.createElement("ol");
   let stepArray = new Array<Node>();
 
@@ -38,6 +50,7 @@ function parseRecipe(parseResult: ParseResult) {
 
   let ingredientList = document.createElement("ul");
   let ingredientArray = new Array<Node>();
+
 
   for (let step of parseResult.steps) {
     let stepOfType = "";
