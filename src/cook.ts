@@ -14,7 +14,9 @@ export default function loadRecipes() {
 }
 
 async function loadRecipe(recipeName: string) {
-  fetch(`/sample_recipes/${recipeName}.cook`)
+  const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
+  fetch(`baseUrl/${recipeName}.cook`)
+  // fetch(`/sample_recipes/${recipeName}.cook`)
     .then((response: Response) => {
       return response.text()
     })
