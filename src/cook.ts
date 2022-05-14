@@ -1,6 +1,14 @@
 import { Parser, ParseResult } from "@cooklang/cooklang-ts";
 
 export default function loadRecipes() {
+  let recipeHolder = document.getElementById("recipeHolder");
+
+  if (recipeHolder) {
+    recipeHolder.querySelectorAll("div").forEach((div) => {
+      div.remove();
+    })
+  }
+
   loadRecipe("gin_sour");
   loadRecipe("martini");
 }
@@ -22,7 +30,49 @@ async function loadRecipe(recipeName: string) {
     })
 }
 
+function parseQueryString() {
+  const urlParams = new URLSearchParams(location.search);
+  let paramMap: {[key: string]: Array<string>} = {};
+  urlParams.forEach((value, key) => {
+    paramMap[key] = value.split(",");
+  })
+  return paramMap
+}
+
+function innerJoin(arr1: Array<string>, arr2: Array<string>) {
+  var newMap = new Map<string, Array<string>>();
+  arr1.forEach((x) => {
+    newMap.set(x, [""]);
+  })
+  arr2.forEach((y) => {
+    let existing = newMap.get(y);
+    if (existing !== undefined ) {
+      newMap.set(y, [y]);
+    }
+  })
+  newMap.forEach((value, key) => {
+    if (value[0] === "") {
+      newMap.delete(key)
+    }
+  })
+  return newMap
+}
+
+function isInArray(array: Array<string>, testString: string) {
+  if (array === undefined || testString === undefined) {
+    return false
+  }
+  for (let arrayString of array) {
+    if (testString === arrayString) {
+      return true
+    }
+  }
+  return false
+}
+
 function parseRecipe(parseResult: ParseResult) {
+  let queryTags = parseQueryString()["tags"];
+  
   let recipeHolder = document.getElementById("recipeHolder");
   let recipeTemplate = recipeHolder?.getElementsByTagName("template")[0].content;
   let recipeClone = recipeTemplate?.cloneNode(true) as HTMLElement;
@@ -37,14 +87,32 @@ function parseRecipe(parseResult: ParseResult) {
   if (parseResult.metadata["tags"]) {
     let tags = parseResult.metadata["tags"]
     let tagArray = tags.split(",")
+
+    if (queryTags) {
+      if (innerJoin(queryTags, tagArray).size === 0) {
+        return
+      }
+    }
+    
     let cardFooter = recipeClone?.querySelector(".card-footer");
     for (let tag of tagArray) {
       let tagBadge = document.createElement("span");
-      tagBadge.className = "badge rounded-pill bg-primary";
-      tagBadge.innerHTML = `${tag}`;
-      tagBadge.addEventListener("click", (event: any) => {
+      tagBadge.className = "badge rounded-pill ";
+      if (isInArray(queryTags, tag)) {
+        tagBadge.className += "bg-primary"
+      } else {
+        tagBadge.className += "bg-secondary"
+      }
+      tagBadge.innerHTML = `<span class="tagBadge">${tag}</span>`;
+      tagBadge.addEventListener("click", (event: Event) => {
         if (event.target) {
-          console.log(event.target.innerText);
+          if (isInArray(queryTags, tag) === false) {
+            let target = event.target as HTMLElement;
+            window.history.pushState(null, "", `/?tags=${target.innerText}`);
+          } else {
+            window.history.pushState(null, "", "/");
+          }
+          loadRecipes();
         }
       })
       cardFooter?.append(tagBadge);
@@ -73,7 +141,11 @@ function parseRecipe(parseResult: ParseResult) {
         case "cookware":
           stepOfType += `<abbr title="${subStep.quantity}">${subStep.name}</abbr>`
           let equipment = document.createElement("li");
-          equipment.innerText = `${subStep.quantity} ${subStep.name}`
+          let equipmentCountIfNotOne = "";
+          if (subStep.quantity != 1) {
+            equipmentCountIfNotOne = `${subStep.quantity} `
+          }
+          equipment.innerText = `${equipmentCountIfNotOne}${subStep.name}`
           equipmentArray.push(equipment);
           break;
         case "text":
@@ -101,3 +173,17 @@ function parseRecipe(parseResult: ParseResult) {
   equipmentList?.append(...equipmentArray);
   recipeHolder?.appendChild(recipeClone);
 }
+
+function swRefreshMessage() {
+  if ("serviceWorker" in navigator && "controller" in navigator.serviceWorker) {
+    let refreshButton = document.getElementById("refreshButton");
+    if (refreshButton) {
+      refreshButton.addEventListener("click", () =>{
+        navigator.serviceWorker.controller?.postMessage("refresh");
+        loadRecipes();
+      })
+    }
+  }
+}
+
+swRefreshMessage();

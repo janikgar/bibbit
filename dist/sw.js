@@ -35,8 +35,22 @@ const cacheFirst = async (request) => {
   return networkResponse
 }
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    cacheFirst(event.request)
-  )
+const cacheClear = () => {
+  caches.delete("v1")
+    .then(() => {
+      console.log("caches cleared")
+    })
+    .catch((err) => {
+      console.log(`could not clear cache: ${err}`)
+    })
+}
+
+self.addEventListener("message", (event) => {
+  console.log(`got message: ${event.data}`)
+  if (event.data === "refresh") {
+    cacheClear();
+  }
+  // event.respondWith(
+  //   cacheFirst(event.request)
+  // )
 })

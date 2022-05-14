@@ -1,5 +1,7 @@
 node_modules/
 sample_recipes/
-*.js
-*.js.map
+dist/*.js
+# *.js
+# *.js.map
 !sw.js
+!webpack.config.js
