@@ -136,6 +136,7 @@ function parseRecipe(parseResult: ParseResult) {
           stepOfType += `<abbr title="${subStep.quantity} ${subStep.units}">${subStep.name}</abbr>`;
           let ingredient = document.createElement("li");
           ingredient.innerText = `${subStep.quantity} ${subStep.units} ${subStep.name}`
+          // ingredient.className = "list-group-item";
           ingredientArray.push(ingredient);
           break;
         case "cookware":
@@ -146,6 +147,7 @@ function parseRecipe(parseResult: ParseResult) {
             equipmentCountIfNotOne = `${subStep.quantity} `
           }
           equipment.innerText = `${equipmentCountIfNotOne}${subStep.name}`
+          // equipment.className = "list-group-item";
           equipmentArray.push(equipment);
           break;
         case "text":
@@ -164,6 +166,7 @@ function parseRecipe(parseResult: ParseResult) {
     // not sure why this is needed, but metadata appears to add zero-length steps
     if (stepOfType.length > 1) {
       let listItem = document.createElement("li");
+      // listItem.className = "list-group-item";
       listItem.innerHTML = stepOfType;
       stepArray.push(listItem);
     }

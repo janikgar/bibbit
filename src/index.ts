@@ -8,11 +8,11 @@ const registerServiceWorker = async () => {
         {scope: "/"}
       );
       if (registration.installing) {
-        console.log("Installing service worker...");
+        console.log("installing service worker...");
       } else if (registration.waiting) {
-        console.log("Waiting on service worker...");
+        console.log("waiting on service worker...");
       } else if (registration.active) {
-        console.log("Service worker active!");
+        console.log("service worker active!");
       }
     } catch (error) {
       console.log(`Error registering Service Worker: ${error}`);
