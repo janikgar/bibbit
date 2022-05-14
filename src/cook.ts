@@ -1,56 +1,64 @@
 import { Parser, ParseResult } from "@cooklang/cooklang-ts";
 
-export default function loadRecipe() {
-  fetch("/sample_recipes/recipe.cook")
-  .then((response: Response) => {
-    console.log("got text");
-    return response.text()
-  })
-  .then((responseText: string) => {
-    let recipeToRead = new Parser;
-    return recipeToRead.parse(responseText)
-  })
-  .then((parseResult: ParseResult) => {
-    parseRecipe(parseResult);
-  })
-  .catch((reason: any) => {
-    console.log(`Could not open file: ${reason}`)
-  })
+export default function loadRecipes() {
+  loadRecipe("gin_sour");
+  loadRecipe("martini");
+}
+
+async function loadRecipe(recipeName: string) {
+  fetch(`/sample_recipes/${recipeName}.cook`)
+    .then((response: Response) => {
+      return response.text()
+    })
+    .then((responseText: string) => {
+      let recipeToRead = new Parser;
+      return recipeToRead.parse(responseText)
+    })
+    .then((parseResult: ParseResult) => {
+      parseRecipe(parseResult);
+    })
+    .catch((reason: any) => {
+      console.log(`Could not open file: ${reason}`)
+    })
 }
 
 function parseRecipe(parseResult: ParseResult) {
-  let recipeCard = document.getElementById("recipeCard");
+  let recipeHolder = document.getElementById("recipeHolder");
+  let recipeTemplate = recipeHolder?.getElementsByTagName("template")[0].content;
+  let recipeClone = recipeTemplate?.cloneNode(true) as HTMLElement;
+  let cardTitle = recipeClone?.querySelector(".card-title");
 
-  let cardTitle = document.createElement("h5");
-  cardTitle.className = "card-title";
-  cardTitle.innerText = "Recipe";
-
-  if (parseResult.metadata["title"]) {
-    cardTitle.innerText = parseResult.metadata["title"]
+  if (cardTitle) {
+    if (parseResult.metadata["title"]) {
+      cardTitle.innerHTML = parseResult.metadata["title"]
+    }
   }
-  recipeCard?.append(cardTitle);
 
   if (parseResult.metadata["tags"]) {
     let tags = parseResult.metadata["tags"]
     let tagArray = tags.split(",")
-    let cardFooter = document.getElementById("recipeCardFooter");
+    let cardFooter = recipeClone?.querySelector(".card-footer");
     for (let tag of tagArray) {
       let tagBadge = document.createElement("span");
       tagBadge.className = "badge rounded-pill bg-primary";
-      tagBadge.innerText = `#${tag}`;
+      tagBadge.innerHTML = `${tag}`;
+      tagBadge.addEventListener("click", (event: any) => {
+        if (event.target) {
+          console.log(event.target.innerText);
+        }
+      })
       cardFooter?.append(tagBadge);
     }
   }
 
-  let stepList = document.createElement("ol");
+  let stepList = recipeClone?.querySelector(".stepList");
   let stepArray = new Array<Node>();
 
-  let ingredientTitle = document.createElement("h6");
-  ingredientTitle.innerText = "Ingredients";
-
-  let ingredientList = document.createElement("ul");
+  let ingredientList = recipeClone?.querySelector(".ingredientList");
   let ingredientArray = new Array<Node>();
 
+  let equipmentList = recipeClone?.querySelector(".equipmentList");
+  let equipmentArray = new Array<Node>();
 
   for (let step of parseResult.steps) {
     let stepOfType = "";
@@ -64,6 +72,9 @@ function parseRecipe(parseResult: ParseResult) {
           break;
         case "cookware":
           stepOfType += `<abbr title="${subStep.quantity}">${subStep.name}</abbr>`
+          let equipment = document.createElement("li");
+          equipment.innerText = `${subStep.quantity} ${subStep.name}`
+          equipmentArray.push(equipment);
           break;
         case "text":
           if (subStep.value != "") {
@@ -85,7 +96,8 @@ function parseRecipe(parseResult: ParseResult) {
       stepArray.push(listItem);
     }
   }
-  stepList.append(...stepArray);
-  ingredientList.append(...ingredientArray);
-  recipeCard?.append(ingredientTitle, ingredientList, stepList);
+  stepList?.append(...stepArray);
+  ingredientList?.append(...ingredientArray);
+  equipmentList?.append(...equipmentArray);
+  recipeHolder?.appendChild(recipeClone);
 }

@@ -1,16 +1,4 @@
-import loadRecipe from "./cook";
-
-function helloWorld(param: string) {
-  if (param == "") {
-    param = "hello world";
-  }
-  let bodyDiv = document.getElementById("bodyDiv");
-  if (bodyDiv) {
-    let par = document.createElement("p");
-    par.innerHTML = param.toString();
-    bodyDiv.append(par);
-  }
-}
+import loadRecipes from "./cook";
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
@@ -33,6 +21,5 @@ const registerServiceWorker = async () => {
 }
 
 registerServiceWorker();
-helloWorld("");
 console.log("call load recipe");
-loadRecipe();
+loadRecipes();
