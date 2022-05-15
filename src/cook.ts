@@ -1,5 +1,7 @@
 import { Parser, ParseResult } from "@cooklang/cooklang-ts";
 
+const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
+
 export default function loadRecipes() {
   let recipeHolder = document.getElementById("recipeHolder");
 
@@ -9,14 +11,22 @@ export default function loadRecipes() {
     })
   }
 
-  loadRecipe("gin_sour");
-  loadRecipe("martini");
+  fetch(`${baseUrl}/manifest.json`)
+    .then((response) => {
+      if (response.status <= 299) {
+        response.json()
+          .then((responseText) => {
+            let fileNames = responseText['files']
+            for (let fileName of fileNames) {
+              loadRecipe(fileName);
+            }
+          })
+      }
+    })
 }
 
 async function loadRecipe(recipeName: string) {
-  const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
-  fetch(`baseUrl/${recipeName}.cook`)
-  // fetch(`/sample_recipes/${recipeName}.cook`)
+  fetch(`${baseUrl}/${recipeName}`)
     .then((response: Response) => {
       return response.text()
     })
