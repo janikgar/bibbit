@@ -1,10 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "name": "Drink Recipes",
-  "short_name": "Drink Recipes",
-  "start_url": ".",
+  "name": "Bibbit",
+  "short_name": "Bibbit",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#fff",
+  "theme_color": "#fff",
   "description": "An app for drink recipes",
   "icons": [
     {
