@@ -1,6 +1,9 @@
 const populateCache = async (resources) => {
   const cache = await caches.open("v1");
-  cache.addAll(resources);
+  cache.addAll(resources)
+    .catch((err) => {
+      console.log(`error populating cache: ${err}`);
+    });
 }
 
 const initCache = async () => {
@@ -9,9 +12,7 @@ const initCache = async () => {
     "/main.js",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.js",
     "https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.css",
-  ]).catch((err) => {
-    console.log(`error populating cache: ${err}`);
-  })
+  ]);
 }
 
 self.addEventListener("install", (event) => {
