@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve-win": "start /min npx webpack -w -c webpack.config.js & start /min python -m http.server --directory dist 8080"
+    "serve-win": "start /min npx webpack -w -c webpack.config.js & start /min python -m http.server --directory dist 8080",
+    "build": "npx webpack -c webpack.config.js"
   },
   "author": "",
   "license": "ISC",
