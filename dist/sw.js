@@ -55,7 +55,10 @@ self.addEventListener("message", (event) => {
   if (event.data === "refresh") {
     cacheClear();
   }
-  // event.respondWith(
-  //   cacheFirst(event.request)
-  // )
+})
+
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    cacheFirst(event.request)
+  )
 })
