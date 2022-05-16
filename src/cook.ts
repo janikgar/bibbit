@@ -16,8 +16,15 @@ export default function loadRecipes() {
       if (response.status <= 299) {
         response.json()
           .then((responseText) => {
-            let fileNames = responseText['files']
-            for (let fileName of fileNames) {
+            let fileNames = responseText['files'] as Array<string>
+            let sortedFileNames = fileNames.sort((a: string, b: string) => {
+              if (a < b) {
+                return -1
+              }
+              return 1
+            })
+
+            for (let fileName of sortedFileNames) {
               loadRecipe(fileName);
             }
           })
@@ -90,9 +97,22 @@ function parseRecipe(parseResult: ParseResult) {
   let recipeClone = recipeTemplate?.cloneNode(true) as HTMLElement;
   let cardTitle = recipeClone?.querySelector(".card-title");
 
+  let dropdownList = document.getElementById("recipeDropdownList");
+
   if (cardTitle) {
     if (parseResult.metadata["title"]) {
-      cardTitle.innerHTML = parseResult.metadata["title"]
+      let fullTitle = parseResult.metadata["title"]
+      let shortTitle = fullTitle.replace(" ", "-").toLowerCase();
+      cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`
+
+      let dropdownListEntry = document.createElement("li");
+      let dropdownListEntryLink = document.createElement("a");
+      dropdownListEntryLink.href = `#${shortTitle}`
+      dropdownListEntryLink.className = "dropdown-item"
+      dropdownListEntryLink.innerText = fullTitle;
+
+      dropdownListEntry.append(dropdownListEntryLink);
+      dropdownList?.append(dropdownListEntry);
     }
   }
 
