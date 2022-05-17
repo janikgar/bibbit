@@ -39,6 +39,15 @@ const cacheFirst = async (request) => {
   return networkResponse
 }
 
+const cacheLast = async (request) => {
+  const networkResponse = await fetch(request);
+  if (networkResponse.status > 299) {
+    return await caches.match(request)
+  }
+  console.log(`successfully retrieved: ${request.url}`)
+  return networkResponse
+}
+
 const cacheClear = () => {
   caches.delete("v1")
     .then(() => {
@@ -58,7 +67,13 @@ self.addEventListener("message", (event) => {
 })
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    cacheFirst(event.request)
-  )
+  if (event.request.url === "https://raw.githubusercontent.com/janikgar/drink-recipes/main/manifest.json") {
+    event.respondWith(
+      cacheLast(event.request)
+    )
+  } else {
+    event.respondWith(
+      cacheFirst(event.request)
+    )
+  }
 })

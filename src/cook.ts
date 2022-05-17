@@ -11,6 +11,13 @@ export default function loadRecipes() {
     })
   }
 
+  let dropdownList = document.getElementById("recipeDropdownList");
+  if (dropdownList) {
+    dropdownList.querySelectorAll("li").forEach((li) => {
+      li.remove();
+    })
+  }
+
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
       if (response.status <= 299) {
@@ -140,9 +147,9 @@ function parseRecipe(parseResult: ParseResult) {
         if (event.target) {
           if (isInArray(queryTags, tag) === false) {
             let target = event.target as HTMLElement;
-            window.history.pushState(null, "", `/?tags=${target.innerText}`);
+            window.history.pushState(null, "", `/index.html?tags=${target.innerText}`);
           } else {
-            window.history.pushState(null, "", "/");
+            window.history.pushState(null, "", "/index.html");
           }
           loadRecipes();
         }
