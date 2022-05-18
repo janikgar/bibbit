@@ -1,3 +1,8 @@
+const cacheFirstDefaults = [
+  "/index.html",
+  "/main.js",
+];
+
 const populateCache = async (resources) => {
   const cache = await caches.open("v1");
   cache.addAll(resources)
@@ -7,12 +12,7 @@ const populateCache = async (resources) => {
 }
 
 const initCache = async () => {
-  populateCache([
-    "/index.html",
-    "/main.js",
-    "https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.js",
-    "https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.css",
-  ]);
+  populateCache(cacheFirstDefaults);
 }
 
 self.addEventListener("install", (event) => {
@@ -67,13 +67,13 @@ self.addEventListener("message", (event) => {
 })
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.url === "https://raw.githubusercontent.com/janikgar/drink-recipes/main/manifest.json") {
+  if (event.request.url in cacheFirstDefaults) {
     event.respondWith(
-      cacheLast(event.request)
+      cacheFirst(event.request)
     )
   } else {
     event.respondWith(
-      cacheFirst(event.request)
+      cacheLast(event.request)
     )
   }
 })

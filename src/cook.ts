@@ -103,24 +103,39 @@ function parseRecipe(parseResult: ParseResult) {
   let recipeTemplate = recipeHolder?.getElementsByTagName("template")[0].content;
   let recipeClone = recipeTemplate?.cloneNode(true) as HTMLElement;
   let cardTitle = recipeClone?.querySelector(".card-title");
+  let cardBody = recipeClone?.querySelector(".card-body");
 
   let dropdownList = document.getElementById("recipeDropdownList");
 
+  let fullTitle = "";
+  let shortTitle = "";
+
   if (cardTitle) {
     if (parseResult.metadata["title"]) {
-      let fullTitle = parseResult.metadata["title"]
-      let shortTitle = fullTitle.replace(" ", "-").toLowerCase();
-      cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`
-
+      fullTitle = parseResult.metadata["title"];
+      shortTitle = fullTitle.replace(" ", "-").toLowerCase();
+      cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`;
+      cardTitle.setAttribute("href", `#${shortTitle}-body`);
+      cardTitle.setAttribute("aria-controls", `${shortTitle}-body`);
+      
       let dropdownListEntry = document.createElement("li");
       let dropdownListEntryLink = document.createElement("a");
-      dropdownListEntryLink.href = `#${shortTitle}`
-      dropdownListEntryLink.className = "dropdown-item"
+      dropdownListEntryLink.href = `#${shortTitle}-body`;
+      dropdownListEntryLink.className = "dropdown-item";
       dropdownListEntryLink.innerText = fullTitle;
+
+      dropdownListEntryLink.setAttribute("aria-controls", `${shortTitle}-body`);
+      dropdownListEntryLink.setAttribute("aria-expanded", "false");
+      dropdownListEntryLink.setAttribute("data-bs-toggle", "collapse");
+      dropdownListEntryLink.setAttribute("role", "button");
 
       dropdownListEntry.append(dropdownListEntryLink);
       dropdownList?.append(dropdownListEntry);
     }
+  }
+
+  if (cardBody) {
+    cardBody.id = `${shortTitle}-body`
   }
 
   if (parseResult.metadata["tags"]) {
