@@ -1,6 +1,6 @@
 const cacheFirstDefaults = [
   "/index.html",
-  "/main.js",
+  // "/main.js",
 ];
 
 const populateCache = async (resources) => {

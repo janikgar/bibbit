@@ -28,6 +28,52 @@ export function initDB() {
   }
 }
 
+export function searchByName(name: string) {
+  let lowerName = name.toLowerCase();
+
+  let request = window.indexedDB.open("bibbit", 1);
+  var db;
+  request.onerror = (event: any) => {
+    console.log(`indexeddb error: ${event.target}`);
+  }
+
+  request.onsuccess = (event: any) => {
+    db = event.target.result as IDBDatabase;
+    let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
+    
+    objectStore.openCursor().onsuccess = ((event: any) => {
+      let successes = new Set<string>();
+      let cursor = event.target.result as IDBCursorWithValue;
+      if (cursor) {
+        let curName = cursor.value.name as string;
+        let lowerCurName = curName.toLowerCase();
+
+        if (lowerCurName.includes(lowerName)) {
+          successes.add(cursor.key.toString());
+          // cursor.continue();
+        } else {
+          let tags = cursor.value.tags as Array<string>;
+          tags.forEach((tag) => {
+            if (tag.includes(lowerName)) {
+              successes.add(cursor.key.toString());
+              // cursor.continue();
+            }
+          });
+          let ingredients = cursor.value.ingredients as Array<string>;
+          ingredients.forEach((ingredient) => {
+            if (ingredient.includes(lowerName)) { 
+              successes.add(cursor.key.toString());
+              // cursor.continue();
+            }
+          })
+        }
+        cursor.continue();
+      }
+      console.log(successes);
+    })
+  }
+}
+
 export function addToDB(entry: ParseResult) {
   let request = window.indexedDB.open("bibbit", 1);
   var db;
@@ -39,10 +85,11 @@ export function addToDB(entry: ParseResult) {
     let transaction = db.transaction("recipes", "readwrite");
 
     transaction.oncomplete = () => {
-      console.log("IDB transaction added");
+      console.log("IDB transaction OK");
     };
-    transaction.onerror = (event) => {
-      console.log(`IDB transaction error: ${event.target}`);
+    transaction.onerror = (event: any) => {
+      let target = event.target as IDBRequest;
+      console.log(`IDB transaction error: ${target.error}`);
     }
 
     var ingredients = new Array<string>();
@@ -54,15 +101,13 @@ export function addToDB(entry: ParseResult) {
       })
     })
 
-    // for (let step of entry.steps) {
-    //   for (let s)
-    // }
-
     let objectStore = transaction.objectStore("recipes");
+    // objectStore.get(entry.metadata["title"]).onerror = () => {
     objectStore.add({
       "name": entry.metadata["title"],
       "tags": entry.metadata["tags"].split(","),
       "ingredients": ingredients,
+      // })
     })
   }
 }
