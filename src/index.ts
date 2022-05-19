@@ -1,7 +1,7 @@
 import loadRecipes from "./cook";
 import './main.scss';
 import 'bootstrap';
-import './search';
+import { initDB } from './search';
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
@@ -24,5 +24,7 @@ const registerServiceWorker = async () => {
 }
 
 registerServiceWorker();
+initDB();
+
 console.log("call load recipe");
 loadRecipes();

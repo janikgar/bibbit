@@ -1,4 +1,5 @@
 import { Parser, ParseResult } from "@cooklang/cooklang-ts";
+import { addToDB } from "./search";
 
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
@@ -40,20 +41,13 @@ export default function loadRecipes() {
 }
 
 async function loadRecipe(recipeName: string) {
-  fetch(`${baseUrl}/${recipeName}`)
-    .then((response: Response) => {
-      return response.text()
-    })
-    .then((responseText: string) => {
-      let recipeToRead = new Parser;
-      return recipeToRead.parse(responseText)
-    })
-    .then((parseResult: ParseResult) => {
-      parseRecipe(parseResult);
-    })
-    .catch((reason: any) => {
-      console.log(`Could not open file: ${reason}`)
-    })
+  // convert to synchronous to help sort
+  let response = await fetch(`${baseUrl}/${recipeName}`)
+  let text = await response.text()
+  let recipeToRead = new Parser;
+  let parsedText = recipeToRead.parse(text);
+  addToDB(parsedText)
+  parseRecipe(parsedText);
 }
 
 function parseQueryString() {
@@ -123,6 +117,16 @@ function parseRecipe(parseResult: ParseResult) {
       dropdownListEntryLink.href = `#${shortTitle}-body`;
       dropdownListEntryLink.className = "dropdown-item";
       dropdownListEntryLink.innerText = fullTitle;
+
+      dropdownListEntryLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        document.getElementById("closeButton")?.click();
+        let target = event.target as HTMLAnchorElement;
+        if (target) {
+          // let realAnchor = target.href.replace("-body", "");
+          window.history.pushState(null, "", target.href);
+        }
+      })
 
       dropdownListEntryLink.setAttribute("aria-controls", `${shortTitle}-body`);
       dropdownListEntryLink.setAttribute("aria-expanded", "false");

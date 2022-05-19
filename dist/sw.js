@@ -45,6 +45,7 @@ const cacheLast = async (request) => {
     return await caches.match(request)
   }
   console.log(`successfully retrieved: ${request.url}`)
+  cacheAppend(request, networkResponse.clone());
   return networkResponse
 }
 
