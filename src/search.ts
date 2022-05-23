@@ -2,14 +2,25 @@ import { ParseResult } from "@cooklang/cooklang-ts";
 
 const searchBox = document.getElementById("searchBox");
 if (searchBox) {
-  searchBox.oninput = ((event) => {
+  // searchBox.onblur = (() => {
+  //   let ac = document.getElementById("autocomplete");
+  //   if (ac) {
+  //     ac.innerHTML = "";
+  //   }
+  // });
+  searchBox.onfocus, searchBox.oninput = (event => {
     let targetElement = event.target as HTMLInputElement;
-    searchContent(targetElement.value);
+    let value = targetElement.value;
+    if (value.length > 2) {
+      searchByName(targetElement.value);
+    }
+    if (value.length == 0) {
+      let ac = document.getElementById("autocomplete");
+      if (ac) {
+        ac.innerHTML = "";
+      }
+    }
   })
-}
-
-function searchContent(searchString: string) {
-  console.log(searchString);
 }
 
 export function initDB() {
@@ -41,8 +52,8 @@ export function searchByName(name: string) {
     db = event.target.result as IDBDatabase;
     let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
     
+    let successes = new Set<string>();
     objectStore.openCursor().onsuccess = ((event: any) => {
-      let successes = new Set<string>();
       let cursor = event.target.result as IDBCursorWithValue;
       if (cursor) {
         let curName = cursor.value.name as string;
@@ -50,27 +61,55 @@ export function searchByName(name: string) {
 
         if (lowerCurName.includes(lowerName)) {
           successes.add(cursor.key.toString());
-          // cursor.continue();
         } else {
           let tags = cursor.value.tags as Array<string>;
-          tags.forEach((tag) => {
+          tags.forEach(tag => {
             if (tag.includes(lowerName)) {
               successes.add(cursor.key.toString());
-              // cursor.continue();
             }
           });
           let ingredients = cursor.value.ingredients as Array<string>;
-          ingredients.forEach((ingredient) => {
+          ingredients.forEach(ingredient => {
             if (ingredient.includes(lowerName)) { 
               successes.add(cursor.key.toString());
-              // cursor.continue();
             }
           })
         }
         cursor.continue();
       }
-      console.log(successes);
+      let successArray = new Array();
+      successes.forEach((val) => {
+        successArray.push(val)
+      });
+
+      genAutocomplete(successArray);
     })
+  }
+}
+
+function genAutocomplete(results: Array<string>) {
+  let acDiv = document.getElementById("autocomplete");
+  let acList = document.createElement("div");
+  acList.className = "list-group";
+  for (let result of results) {
+    let shortTitle = result.replace(" ", "-").toLowerCase();
+    let acListItem = document.createElement("a");
+    acListItem.className = "list-group-item list-group-item-action";
+    acListItem.href = `#${shortTitle}`
+    acListItem.innerText = result;
+    acListItem.addEventListener("click", (event) => {
+      let srcTarget = event.target as HTMLAnchorElement;
+      let destTarget = srcTarget.href.split("#")[1];
+      let destElement = document.getElementById(destTarget);
+      if (destElement) {
+        destElement.dispatchEvent(new Event("click"));
+      }
+    })
+    acList.append(acListItem);
+  }
+  if (acDiv) {
+    acDiv.innerHTML = "";
+    acDiv.append(acList);
   }
 }
 
@@ -85,16 +124,17 @@ export function addToDB(entry: ParseResult) {
     let transaction = db.transaction("recipes", "readwrite");
 
     transaction.oncomplete = () => {
-      console.log("IDB transaction OK");
+      // console.log("IDB transaction OK");
     };
     transaction.onerror = (event: any) => {
       let target = event.target as IDBRequest;
+      console.log(target);
       console.log(`IDB transaction error: ${target.error}`);
     }
 
     var ingredients = new Array<string>();
-    entry.steps.forEach((step) => {
-      step.forEach((subStep) => {
+    entry.steps.forEach(step => {
+      step.forEach(subStep => {
         if (subStep.type === "ingredient") {
           ingredients.push(subStep.name);
         }
@@ -102,12 +142,10 @@ export function addToDB(entry: ParseResult) {
     })
 
     let objectStore = transaction.objectStore("recipes");
-    // objectStore.get(entry.metadata["title"]).onerror = () => {
-    objectStore.add({
+    objectStore.put({
       "name": entry.metadata["title"],
       "tags": entry.metadata["tags"].split(","),
       "ingredients": ingredients,
-      // })
     })
   }
 }

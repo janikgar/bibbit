@@ -1,10 +1,11 @@
 const cacheFirstDefaults = [
+  "/",
   "/index.html",
-  // "/main.js",
 ];
 
 const populateCache = async (resources) => {
   const cache = await caches.open("v1");
+  console.log(resources);
   cache.addAll(resources)
     .catch((err) => {
       console.log(`error populating cache: ${err}`);
@@ -16,7 +17,7 @@ const initCache = async () => {
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(populateCache())
+  event.waitUntil(initCache())
 });
 
 const cacheAppend = async function (request, response) {
@@ -40,13 +41,23 @@ const cacheFirst = async (request) => {
 }
 
 const cacheLast = async (request) => {
-  const networkResponse = await fetch(request);
-  if (networkResponse.status > 299) {
-    return await caches.match(request)
-  }
-  console.log(`successfully retrieved: ${request.url}`)
-  cacheAppend(request, networkResponse.clone());
-  return networkResponse
+  return fetch(request)
+    .then(response => {
+      console.log(`successfully retrieved: ${request.url}`);
+      cacheAppend(request, response.clone());
+      return response
+    })
+    .catch(err => {
+      console.log(`cache miss: ${err}`)
+      return caches.match(request);
+    });
+  // const networkResponse = await fetch(request);
+  // if (networkResponse.status > 299) {
+  //   return await caches.match(request)
+  // }
+  // console.log(`successfully retrieved: ${request.url}`)
+  // cacheAppend(request, networkResponse.clone());
+  // return networkResponse
 }
 
 const cacheClear = () => {

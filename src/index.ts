@@ -28,5 +28,3 @@ initDB();
 
 console.log("call load recipe");
 loadRecipes();
-
-searchByName("lemon");

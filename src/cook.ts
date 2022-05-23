@@ -114,17 +114,18 @@ function parseRecipe(parseResult: ParseResult) {
       
       let dropdownListEntry = document.createElement("li");
       let dropdownListEntryLink = document.createElement("a");
-      dropdownListEntryLink.href = `#${shortTitle}-body`;
+      dropdownListEntryLink.href = `#${shortTitle}`;
       dropdownListEntryLink.className = "dropdown-item";
       dropdownListEntryLink.innerText = fullTitle;
 
       dropdownListEntryLink.addEventListener("click", (event) => {
         event.preventDefault();
         document.getElementById("closeButton")?.click();
-        let target = event.target as HTMLAnchorElement;
-        if (target) {
-          // let realAnchor = target.href.replace("-body", "");
-          window.history.pushState(null, "", target.href);
+        let srcTarget = event.target as HTMLAnchorElement;
+        let destTarget = srcTarget.href.split("#")[1];
+        let destElement = document.getElementById(destTarget);
+        if (destElement) {
+          destElement.dispatchEvent(new Event("click"));
         }
       })
 
