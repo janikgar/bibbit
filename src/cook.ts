@@ -111,6 +111,17 @@ function parseRecipe(parseResult: ParseResult) {
       cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`;
       cardTitle.setAttribute("href", `#${shortTitle}-body`);
       cardTitle.setAttribute("aria-controls", `${shortTitle}-body`);
+      let cardParent = cardTitle.parentElement;
+      if (cardParent) {
+        cardParent.addEventListener("click", (event: Event) => {
+          let target = event.target as HTMLAnchorElement;
+          let targetChild = target.querySelector("a");
+          if (targetChild) {
+            let dest = targetChild.id;
+            history.pushState(null, "", `index.html#${dest}`);
+          }
+        })
+      }
       
       let dropdownListEntry = document.createElement("li");
       let dropdownListEntryLink = document.createElement("a");

@@ -1,26 +1,33 @@
 import { ParseResult } from "@cooklang/cooklang-ts";
 
-const searchBox = document.getElementById("searchBox");
-if (searchBox) {
-  // searchBox.onblur = (() => {
-  //   let ac = document.getElementById("autocomplete");
-  //   if (ac) {
-  //     ac.innerHTML = "";
-  //   }
-  // });
-  searchBox.onfocus, searchBox.oninput = (event => {
-    let targetElement = event.target as HTMLInputElement;
-    let value = targetElement.value;
-    if (value.length > 2) {
-      searchByName(targetElement.value);
+
+function autoComplete(event: Event) {
+  let targetElement = event.target as HTMLInputElement;
+  let value = targetElement.value;
+  if (value.length > 2) {
+    searchByName(targetElement.value);
+  }
+  if (value.length == 0) {
+    let ac = document.getElementById("autocomplete");
+    if (ac) {
+      ac.innerHTML = "";
     }
-    if (value.length == 0) {
+  }
+}
+
+let searchBox = document.getElementById("searchBox");
+if (searchBox) {
+  searchBox.addEventListener("blur", () => {
+    setTimeout(() => {
       let ac = document.getElementById("autocomplete");
       if (ac) {
         ac.innerHTML = "";
       }
-    }
+    }, 1000);
   })
+
+  searchBox.addEventListener("input", autoComplete)
+  searchBox.addEventListener("focus", autoComplete)
 }
 
 export function initDB() {
@@ -97,12 +104,15 @@ function genAutocomplete(results: Array<string>) {
     acListItem.className = "list-group-item list-group-item-action";
     acListItem.href = `#${shortTitle}`
     acListItem.innerText = result;
-    acListItem.addEventListener("click", (event) => {
+    acListItem.addEventListener("click", (event: Event) => {
+      event.preventDefault();
+      console.log("click");
       let srcTarget = event.target as HTMLAnchorElement;
       let destTarget = srcTarget.href.split("#")[1];
       let destElement = document.getElementById(destTarget);
       if (destElement) {
         destElement.dispatchEvent(new Event("click"));
+        history.pushState(null, "", `/index.html#${destTarget}`)
       }
     })
     acList.append(acListItem);
