@@ -107,7 +107,7 @@ function parseRecipe(parseResult: ParseResult) {
   if (cardTitle) {
     if (parseResult.metadata["title"]) {
       fullTitle = parseResult.metadata["title"];
-      shortTitle = fullTitle.replace(" ", "-").toLowerCase();
+      shortTitle = fullTitle.replace(/\W+/g, "-").toLowerCase();
       cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`;
       cardTitle.setAttribute("href", `#${shortTitle}-body`);
       cardTitle.setAttribute("aria-controls", `${shortTitle}-body`);

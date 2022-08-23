@@ -10,6 +10,11 @@ const registerServiceWorker = async () => {
         "/sw.js",
         {scope: "/"}
       );
+      if ("sync" in registration) {
+        console.log("sync is supported");
+      } else {
+        console.log("sync is not supported");
+      }
       if (registration.installing) {
         console.log("installing service worker...");
       } else if (registration.waiting) {
