@@ -284,13 +284,11 @@ function parseRecipe(parseResult: ParseResult) {
 
 function swRefreshMessage() {
   if ("serviceWorker" in navigator && "controller" in navigator.serviceWorker) {
-    let refreshButton = document.getElementById("refreshButton");
-    if (refreshButton) {
-      refreshButton.addEventListener("click", () =>{
-        navigator.serviceWorker.controller?.postMessage("refresh");
-        loadRecipes();
-      })
-    }
+    let refreshButton = document.getElementById("refreshBtn");
+    refreshButton?.addEventListener("click", () =>{
+      navigator.serviceWorker.controller?.postMessage("refresh");
+      loadRecipes();
+    });
   }
 }
 
