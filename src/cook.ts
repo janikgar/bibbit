@@ -125,6 +125,80 @@ function isInArray(array: Array<string>, testString: string) {
   return false
 }
 
+function estimateFraction(quantity: number | string) {
+  if (typeof quantity === "number") {
+    let remainder = quantity % 1;
+    let base = String(quantity - remainder);
+    let fraction = "";
+    if (base === "0") {
+      base = "";
+    }
+    if ((remainder * 2) % 2 === 1) {
+      fraction = "½";
+    }
+    if ((remainder * 3) % 3 !== 0) {
+      let numerator = (remainder * 3) % 3;
+      switch (numerator) {
+        case 1:
+          fraction = "⅓";
+          break;
+        case 2:
+          fraction = "⅔";
+          break;
+        default:
+          break;
+      }
+    }
+    if ((remainder * 4) % 4 !== 0) {
+      let numerator = (remainder * 4) % 4;
+      switch (numerator) {
+        case 1:
+          fraction = "¼";
+          break;
+        case 3:
+          fraction = "¾";
+          break;
+        default:
+          break;
+      }
+    }
+    if ((remainder * 6) % 6 !== 0) {
+      let numerator = (remainder * 6) % 6;
+      switch (numerator) {
+        case 1:
+          fraction = "⅙";
+          break;
+        case 5:
+          fraction = "⅚";
+          break;
+        default:
+          break;
+      }
+    }
+    if ((remainder * 8) % 8 !== 0) {
+      let numerator = (remainder * 8) % 8;
+      switch (numerator) {
+        case 1:
+          fraction = "⅛";
+          break;
+        case 3:
+          fraction = "⅜";
+          break;
+        case 5:
+          fraction = "⅝";
+          break;
+        case 7:
+          fraction = "⅞";
+          break;
+        default:
+          break;
+      }
+    }
+    return `${base}${fraction}`
+  }
+  return quantity
+}
+
 function parseRecipe(parseResult: ParseResult) {
   let queryTags = parseQueryString()["tags"];
   
@@ -240,7 +314,8 @@ function parseRecipe(parseResult: ParseResult) {
         case "ingredient":
           stepOfType += `<abbr title="${subStep.quantity} ${subStep.units}">${subStep.name}</abbr>`;
           let ingredient = document.createElement("li");
-          ingredient.innerText = `${subStep.quantity} ${subStep.units} ${subStep.name}`
+          let quantity = estimateFraction(subStep.quantity);
+          ingredient.innerText = `${quantity} ${subStep.units} ${subStep.name}`
           // ingredient.className = "list-group-item";
           ingredientArray.push(ingredient);
           break;
