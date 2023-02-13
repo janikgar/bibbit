@@ -11,8 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cooklang/cooklang-ts": "^1.0.1",
-    "bootstrap": "^5.2.0-beta1",
+    "@cooklang/cooklang-ts": "^1.2.3",
+    "bootstrap": "^5.2.3",
     "css-loader": "^6.7.1",
     "mini-css-extract-plugin": "^2.6.0",
     "postcss-loader": "^6.2.1",
@@ -25,6 +25,6 @@
     "webpack-cli": "^4.9.2"
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.1.11"
+    "@types/bootstrap": "^5.2.3"
   }
 }

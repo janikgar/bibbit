@@ -30,6 +30,4 @@ const registerServiceWorker = async () => {
 
 registerServiceWorker();
 initDB();
-
-console.log("call load recipe");
 loadRecipes();

@@ -4,6 +4,9 @@ import { addToDB } from "./search";
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
 export default function loadRecipes() {
+  let modalToggler = document.getElementById("modal-toggler");
+  modalToggler?.click();
+
   let recipeHolder = document.getElementById("recipeHolder");
 
   if (recipeHolder) {
@@ -24,6 +27,7 @@ export default function loadRecipes() {
       if (response.status <= 299) {
         response.json()
           .then((responseText) => {
+            incrementProgress(10);
             let fileNames = responseText['files'] as Array<string>
             let sortedFileNames = fileNames.sort((a: string, b: string) => {
               if (a < b) {
@@ -32,22 +36,53 @@ export default function loadRecipes() {
               return 1
             })
 
-            for (let fileName of sortedFileNames) {
-              loadRecipe(fileName);
+            let progressBarUnits = 90;
+            if (fileNames.length > 0) {
+              progressBarUnits = 90 / fileNames.length
             }
+
+            for (let fileName of sortedFileNames) {
+              loadRecipe(fileName, progressBarUnits);
+            }
+          }).catch((reason) => {
+            console.log(`could not open JSON: ${reason}`)
           })
-      }
-    })
+        }
+      }).catch((reason) => {
+        console.log(`could not load recipes: ${reason}`);
+      }).finally(() => {
+        setTimeout(() => {
+          let modalCloser = document.getElementById("modal-closer");
+          modalCloser?.click();
+        }, 500);
+    });
 }
 
-async function loadRecipe(recipeName: string) {
-  // convert to synchronous to help sort
-  let response = await fetch(`${baseUrl}/${recipeName}`)
-  let text = await response.text()
-  let recipeToRead = new Parser;
-  let parsedText = recipeToRead.parse(text);
-  addToDB(parsedText)
-  parseRecipe(parsedText);
+function incrementProgress(percent: number) {
+  let progress = document.getElementById('load-progress');
+  let progressBar = document.getElementById('load-progress-bar');
+
+  let currentProgress = Number(progress?.hasAttribute("aria-valuenow")? progress.getAttribute("aria-valuenow") : "0")
+  let newProgress = currentProgress + percent
+
+  progress?.setAttribute("aria-valuenow", String(newProgress))
+  progressBar?.setAttribute("style", `width: ${String(newProgress)}%;`)
+}
+
+function loadRecipe(recipeName: string, incrementAmount: number) {
+  fetch(`${baseUrl}/${recipeName}`).then((response) => {
+    response.text().then((text) => {
+      let recipeToRead = new Parser;
+      let parsedText = recipeToRead.parse(text);
+      addToDB(parsedText)
+      parseRecipe(parsedText);
+      incrementProgress(incrementAmount);
+    }).catch((reason) => {
+      console.log(`could not load recipe text ${recipeName}: ${reason}`)
+    });
+  }).catch((reason) => {
+    console.log(`could not load recipe ${recipeName}: ${reason}`)
+  });
 }
 
 function parseQueryString() {

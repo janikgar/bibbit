@@ -53,6 +53,22 @@
     </div>
     <div class="container bg-dark">
       <section>
+        <button type="button" class="btn btn-primary" id="modal-toggler" data-bs-toggle="modal" data-bs-target="#loading-modal" hidden="true" aria-hidden="true">
+          Launch
+        </button>
+        <div class="modal fade text-bg-dark border-light" id="loading-modal" tabindex="-1" aria-labelledby="loading-modal-label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-header">
+              <h4 class="modal-title">Loading beverages...</h4>
+              <button type="button" class="btn-close" id="modal-closer" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="progress" role="progressbar" id="load-progress" aria-label="Recipe Loading Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-bar progress-bar-animated progress-bar-striped" id="load-progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="row gx-3 gy-3" id="recipeHolder">
           <template id="recipeTemplate">
             <div class="col-xs-12 col-md-6">

@@ -7,7 +7,6 @@ const cacheFirstDefaults = [
 
 const populateCache = async (resources) => {
   const cache = await caches.open(cacheVersion);
-  console.log(resources);
   cache.addAll(resources)
     .catch((err) => {
       console.log(`error populating cache: ${err}`);
@@ -33,10 +32,8 @@ const cacheAppend = async function (request, response) {
 const cacheFirst = async (request) => {
   const cacheResponse = await caches.match(request);
   if (cacheResponse) {
-    console.log(`cache hit: ${request.url}`);
     return cacheResponse
   }
-  console.log(`cache miss: ${request.url}`);
   const networkResponse = await fetch(request);
   cacheAppend(request, networkResponse.clone());
   return networkResponse
@@ -45,12 +42,10 @@ const cacheFirst = async (request) => {
 const cacheLast = async (request) => {
   return fetch(request)
     .then(response => {
-      console.log(`successfully retrieved: ${request.url}`);
       cacheAppend(request, response.clone());
       return response
     })
     .catch(err => {
-      console.log(`cache miss: ${err}`)
       return caches.match(request);
     });
 }
@@ -88,11 +83,8 @@ const fetchManifest = async () => {
     .catch(err => {
       console.log(`recipe manifest failed: ${err}`)
     })
-  // if (cachedManifest && remoteManifest && cachedManifest !== remoteManifest) {
   if (cachedManifest && remoteManifest) {
     return "this is probably new"
-    // console.log("this is probably new!");
-    // window.postMessage("this is probaby new!");
   }
 }
 
