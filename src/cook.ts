@@ -5,7 +5,6 @@ const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
 export default function loadRecipes() {
   let modalToggler = document.getElementById("modal-toggler");
-  modalToggler?.click();
 
   let recipeHolder = document.getElementById("recipeHolder");
 
@@ -24,6 +23,10 @@ export default function loadRecipes() {
 
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
+      console.log(response.headers);
+      if (response.headers.get("x-from-cache") !== "true") {
+        modalToggler?.click();
+      }
       if (response.status <= 299) {
         response.json()
           .then((responseText) => {
@@ -47,14 +50,14 @@ export default function loadRecipes() {
           }).catch((reason) => {
             console.log(`could not open JSON: ${reason}`)
           })
-        }
-      }).catch((reason) => {
-        console.log(`could not load recipes: ${reason}`);
-      }).finally(() => {
-        setTimeout(() => {
-          let modalCloser = document.getElementById("modal-closer");
-          modalCloser?.click();
-        }, 500);
+      }
+    }).catch((reason) => {
+      console.log(`could not load recipes: ${reason}`);
+    }).finally(() => {
+      setTimeout(() => {
+        let modalCloser = document.getElementById("modal-closer");
+        modalCloser?.click();
+      }, 500);
     });
 }
 
@@ -62,7 +65,7 @@ function incrementProgress(percent: number) {
   let progress = document.getElementById('load-progress');
   let progressBar = document.getElementById('load-progress-bar');
 
-  let currentProgress = Number(progress?.hasAttribute("aria-valuenow")? progress.getAttribute("aria-valuenow") : "0")
+  let currentProgress = Number(progress?.hasAttribute("aria-valuenow") ? progress.getAttribute("aria-valuenow") : "0")
   let newProgress = currentProgress + percent
 
   progress?.setAttribute("aria-valuenow", String(newProgress))
@@ -87,7 +90,7 @@ function loadRecipe(recipeName: string, incrementAmount: number) {
 
 function parseQueryString() {
   const urlParams = new URLSearchParams(location.search);
-  let paramMap: {[key: string]: Array<string>} = {};
+  let paramMap: { [key: string]: Array<string> } = {};
   urlParams.forEach((value, key) => {
     paramMap[key] = value.split(",");
   })
@@ -101,7 +104,7 @@ function innerJoin(arr1: Array<string>, arr2: Array<string>) {
   })
   arr2.forEach((y) => {
     let existing = newMap.get(y);
-    if (existing !== undefined ) {
+    if (existing !== undefined) {
       newMap.set(y, [y]);
     }
   })
@@ -201,7 +204,7 @@ function estimateFraction(quantity: number | string) {
 
 function parseRecipe(parseResult: ParseResult) {
   let queryTags = parseQueryString()["tags"];
-  
+
   let recipeHolder = document.getElementById("recipeHolder");
   let recipeTemplate = recipeHolder?.getElementsByTagName("template")[0].content;
   let recipeClone = recipeTemplate?.cloneNode(true) as HTMLElement;
@@ -231,7 +234,7 @@ function parseRecipe(parseResult: ParseResult) {
           }
         })
       }
-      
+
       let dropdownListEntry = document.createElement("li");
       let dropdownListEntryLink = document.createElement("a");
       dropdownListEntryLink.href = `#${shortTitle}`;
@@ -272,7 +275,7 @@ function parseRecipe(parseResult: ParseResult) {
         return
       }
     }
-    
+
     let cardFooter = recipeClone?.querySelector(".card-footer");
     for (let tag of tagArray) {
       let tagBadge = document.createElement("span");
@@ -360,7 +363,7 @@ function parseRecipe(parseResult: ParseResult) {
 function swRefreshMessage() {
   if ("serviceWorker" in navigator && "controller" in navigator.serviceWorker) {
     let refreshButton = document.getElementById("refreshBtn");
-    refreshButton?.addEventListener("click", () =>{
+    refreshButton?.addEventListener("click", () => {
       navigator.serviceWorker.controller?.postMessage("refresh");
       loadRecipes();
     });

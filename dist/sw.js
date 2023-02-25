@@ -23,14 +23,31 @@ self.addEventListener("install", (event) => {
 
 const cacheAppend = async function (request, response) {
   const cache = await caches.open(cacheVersion);
-  cache.put(request, response)
+
+  var cacheHeaders = new Headers();
+
+  response.headers.forEach((value, key) => {
+    cacheHeaders.set(key, value)
+  })
+
+  cacheHeaders.set("content-type", "text/plain; charset=utf-8");
+  cacheHeaders.set("x-from-cache", "true");
+
+  newResponse = new Response(
+    response.body,
+    {
+      headers: cacheHeaders
+    }
+  )
+
+  cache.put(request, newResponse)
     .catch(function (err) {
       console.log("error adding to cache: " + err)
     });
 }
 
 const cacheFirst = async (request) => {
-  const cacheResponse = await caches.match(request);
+  var cacheResponse = await caches.match(request);
   if (cacheResponse) {
     return cacheResponse
   }
@@ -43,10 +60,16 @@ const cacheLast = async (request) => {
   return fetch(request)
     .then(response => {
       cacheAppend(request, response.clone());
+      console.log(response.headers);
       return response
     })
     .catch(err => {
-      return caches.match(request);
+      console.log(err);
+      caches.match(request).then((cacheResponse) => {
+        cacheResponse.headers.append("from-cache", "true");
+        console.log(cacheResponse.headers);
+        return cacheResponse
+      });
     });
 }
 
@@ -111,7 +134,7 @@ self.addEventListener("fetch", (event) => {
     )
   } else {
     event.respondWith(
-      cacheLast(event.request)
+      cacheFirst(event.request)
     )
   }
 })
