@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll, jest } from "@jest/globals"
-import { loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe } from "./cook"
+import loadRecipes, { loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe } from "./cook"
 import { Parser } from "@cooklang/cooklang-ts"
 import { initDB } from "./search"
 import "isomorphic-fetch"
@@ -27,7 +27,7 @@ var parseResult = recipeParser.parse(parseText);
 beforeAll(() => {
   initDB();
 
-  global.fetch = jest.fn((url) => {
+  const mockFetch = jest.fn((url) => {
     let resp = new Response(`
 >> title: Negroni
 >> tags: gin,tumbler,rolled,three-ingredient
@@ -46,6 +46,7 @@ Garnish optionally with @orange peel{1} after expressing orange oil on glass.
       resp
     )
   })
+  global.fetch = mockFetch
 })
 
 describe("cook", () => {
@@ -92,5 +93,9 @@ describe("cook", () => {
 
   test("parseRecipe", () => {
     expect(parseRecipe(parseResult)).toBeUndefined();
+  });
+
+  test("loadRecipes", () => {
+    expect(loadRecipes()).toBeUndefined();
   });
 })
