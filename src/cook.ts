@@ -61,7 +61,7 @@ export default function loadRecipes() {
     });
 }
 
-function incrementProgress(percent: number) {
+export function incrementProgress(percent: number) {
   let progress = document.getElementById('load-progress');
   let progressBar = document.getElementById('load-progress-bar');
 
@@ -72,7 +72,7 @@ function incrementProgress(percent: number) {
   progressBar?.setAttribute("style", `width: ${String(newProgress)}%;`)
 }
 
-function loadRecipe(recipeName: string, incrementAmount: number) {
+export function loadRecipe(recipeName: string, incrementAmount: number) {
   fetch(`${baseUrl}/${recipeName}`).then((response) => {
     response.text().then((text) => {
       let recipeToRead = new Parser;

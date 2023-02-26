@@ -1,7 +1,6 @@
 import { ParseResult } from "@cooklang/cooklang-ts";
 
-
-function autoComplete(event: Event) {
+export function autoComplete(event: Event) {
   let targetElement = event.target as HTMLInputElement;
   let value = targetElement.value;
   if (value.length > 2) {
@@ -94,7 +93,7 @@ export function searchByName(name: string) {
   }
 }
 
-function genAutocomplete(results: Array<string>) {
+export function genAutocomplete(results: Array<string>) {
   let acDiv = document.getElementById("autocomplete");
   let acList = document.createElement("div");
   acList.className = "list-group";
