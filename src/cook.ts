@@ -97,7 +97,7 @@ function parseQueryString() {
   return paramMap
 }
 
-function innerJoin(arr1: Array<string>, arr2: Array<string>) {
+export function innerJoin(arr1: Array<string>, arr2: Array<string>) {
   var newMap = new Map<string, Array<string>>();
   arr1.forEach((x) => {
     newMap.set(x, [""]);
@@ -116,7 +116,7 @@ function innerJoin(arr1: Array<string>, arr2: Array<string>) {
   return newMap
 }
 
-function isInArray(array: Array<string>, testString: string) {
+export function isInArray(array: Array<string>, testString: string) {
   if (array === undefined || testString === undefined) {
     return false
   }
@@ -128,7 +128,7 @@ function isInArray(array: Array<string>, testString: string) {
   return false
 }
 
-function estimateFraction(quantity: number | string) {
+export function estimateFraction(quantity: number | string) {
   if (typeof quantity === "number") {
     let remainder = quantity % 1;
     let base = String(quantity - remainder);
@@ -202,7 +202,7 @@ function estimateFraction(quantity: number | string) {
   return quantity
 }
 
-function parseRecipe(parseResult: ParseResult) {
+export function parseRecipe(parseResult: ParseResult) {
   let queryTags = parseQueryString()["tags"];
 
   let recipeHolder = document.getElementById("recipeHolder");

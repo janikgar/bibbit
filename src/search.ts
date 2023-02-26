@@ -6,13 +6,15 @@ export function autoComplete(event: Event) {
   if (value.length > 2) {
     searchByName(targetElement.value);
   }
-  if (value.length == 0) {
+  if (value.length === 0) {
     let ac = document.getElementById("autocomplete");
     if (ac) {
       ac.innerHTML = "";
     }
   }
 }
+
+
 
 let searchBox = document.getElementById("searchBox");
 if (searchBox) {

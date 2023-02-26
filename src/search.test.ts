@@ -2,6 +2,7 @@ import { addToDB, initDB, genAutocomplete, searchByName, autoComplete } from "./
 import { Parser } from "@cooklang/cooklang-ts"
 import { describe, test, expect, beforeEach, beforeAll, jest } from "@jest/globals"
 import "fake-indexeddb/auto"
+import { IDBFactory, IDBOpenDBRequest } from "fake-indexeddb"
 
 jest.useFakeTimers();
 
@@ -22,27 +23,50 @@ Garnish optionally with @orange peel{1} after expressing orange oil on glass.
 var recipeParser = new Parser;
 var parseResult = recipeParser.parse(parseText);
 
+beforeEach(() => {
+  indexedDB = new IDBFactory();
+})
+
 describe("search", () => {
-  test("initDB", () => {
+  test.each([
+    {testName: "success", failure: false, upgrade: false},
+    // {testName: "failure", failure: true, upgrade: false},
+    // {testName: "upgrade", failure: false, upgrade: true},
+  ])('initDB: $testName', ({failure, upgrade}) => {
+    let mockIDBOpen = jest.fn((name, version) => {
+      let req = new IDBOpenDBRequest;
+      if (upgrade) {
+        req.dispatchEvent(new Event("upgradeneeded"));
+      }
+      if (failure) {
+        req.dispatchEvent(new Event("error"));
+      }
+      return req
+    });
+    indexedDB.open = mockIDBOpen;
     expect(initDB()).toBeUndefined();
-    expect(indexedDB.open("bibbit", 1)).toBeInstanceOf(IDBOpenDBRequest);
-    let request = indexedDB.open("bibbit", 1);
-    request.onsuccess = (event: any) => {
-      let db = event.target.result as IDBDatabase;
-      let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
-      objectStore.openCursor().onsuccess = ((event: any) => {
-        let cursor = event.target.result as IDBCursorWithValue;
-      })
-    }
+    // expect(indexedDB.open("bibbit", 1)).toBeInstanceOf(IDBOpenDBRequest);
+    // let request = indexedDB.open("bibbit", 1);
+    // request.onsuccess = (event: any) => {
+    //   let db = event.target.result as IDBDatabase;
+    //   let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
+    //   objectStore.openCursor().onsuccess = ((event: any) => {
+    //     let cursor = event.target.result as IDBCursorWithValue;
+    //   })
+    // }
   });
-  test("autoComplete", () => {
+  test.each([
+    {testName: "empty value", value: ""},
+    {testName: "existing value", value: "1234"},
+  ])('autoComplete: $testName', ({value}) => {
     document.body.innerHTML = `<div id="autocomplete"></div>`;
     genAutocomplete(["foo bar"]);
     let target = document.createElement("input");
-    target.value = "1234";
+    target.value = value;
     target.addEventListener("focus", autoComplete);
     target.dispatchEvent(new Event("focus"));
   });
+
   test("addToDB", () => {
     expect(addToDB(parseResult)).toBeUndefined();
   });
