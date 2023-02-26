@@ -1,13 +1,13 @@
-import { test, expect, describe, beforeAll, jest } from "@jest/globals"
-import loadRecipes, { loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe } from "./cook"
+import { test, expect, describe, beforeAll, jest, beforeEach } from "@jest/globals"
+import loadRecipes, { loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe, prepareLoadRecipes, parseManifest } from "../cook"
 import { Parser } from "@cooklang/cooklang-ts"
-import { initDB } from "./search"
+import { initDB } from "../search"
 import "isomorphic-fetch"
 import "fake-indexeddb/auto"
 
-const htmlFile = require("../dist/index.html");
+const htmlFile = require("../../dist/index.html");
 
-var parseText = `
+var testRecipe = `
 >> title: Negroni
 >> tags: gin,tumbler,rolled,three-ingredient
 
@@ -21,30 +21,25 @@ Roll ingredients together in glass or lightly stir with finger.
 
 Garnish optionally with @orange peel{1} after expressing orange oil on glass.
   `
+var testManifest = `{
+  "files": [
+    "negroni.cook"
+  ]
+}
+`
 var recipeParser = new Parser;
-var parseResult = recipeParser.parse(parseText);
+var parseResult = recipeParser.parse(testRecipe);
+
+beforeEach(() => {
+  document.body.outerHTML = htmlFile;
+})
 
 beforeAll(() => {
   initDB();
 
   const mockFetch = jest.fn((url) => {
-    let resp = new Response(`
->> title: Negroni
->> tags: gin,tumbler,rolled,three-ingredient
-
-Add @ice{1%large cube} to #tumbler{}.
-
-Combine @Carpano Antica sweet vermouth{3/4%oz} and @Tuvè Bitter{3/4%oz} in tumbler.
-
-Add @gin{1 1/2%oz} to tumbler.
-
-Roll ingredients together in glass or lightly stir with finger.
-
-Garnish optionally with @orange peel{1} after expressing orange oil on glass.
-  `)
-    return Promise.resolve(
-      resp
-    )
+    let resp = new Response(testRecipe);
+    return Promise.resolve(resp)
   })
   global.fetch = mockFetch
 })
@@ -87,15 +82,37 @@ describe("cook", () => {
   })
 
   test("loadRecipe", () => {
-    document.body.outerHTML = htmlFile;
     expect(loadRecipe("negroni.cook", 10)).toBeUndefined();
   });
 
   test("parseRecipe", () => {
     expect(parseRecipe(parseResult)).toBeUndefined();
+  });``
+
+  test.each([
+    {name: "success", success: true},
+    {name: "fail", success: false},
+  ])('prepareLoadRecipe: $name', ({success}) => {
+    if (!success) {
+      document.body.outerHTML = '';
+    }
+    expect(prepareLoadRecipes()).toEqual(success);
+  })
+
+  test("parseManifest", () => {
+    const mockFetch = jest.fn((url: RequestInfo | URL) => {
+      let resp = new Response(testRecipe);
+      if (url.toString().match("manifest")) {
+        resp = new Response(testManifest);
+      }
+      return Promise.resolve(resp)
+    })
+    global.fetch = mockFetch
+
+    expect(parseManifest()).toBeUndefined();
   });
 
-  test("loadRecipes", () => {
-    expect(loadRecipes()).toBeUndefined();
-  });
+  // test("loadRecipes", () => {
+  //   expect(loadRecipes()).toBeUndefined();
+  // });
 })

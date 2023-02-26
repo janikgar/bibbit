@@ -1,4 +1,4 @@
-import { addToDB, initDB, genAutocomplete, searchByName, autoComplete } from "./search"
+import { addToDB, initDB, genAutocomplete, searchByName, autoComplete } from "../search"
 import { Parser } from "@cooklang/cooklang-ts"
 import { describe, test, expect, beforeEach, beforeAll, jest } from "@jest/globals"
 import "fake-indexeddb/auto"
@@ -45,15 +45,6 @@ describe("search", () => {
     });
     indexedDB.open = mockIDBOpen;
     expect(initDB()).toBeUndefined();
-    // expect(indexedDB.open("bibbit", 1)).toBeInstanceOf(IDBOpenDBRequest);
-    // let request = indexedDB.open("bibbit", 1);
-    // request.onsuccess = (event: any) => {
-    //   let db = event.target.result as IDBDatabase;
-    //   let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
-    //   objectStore.openCursor().onsuccess = ((event: any) => {
-    //     let cursor = event.target.result as IDBCursorWithValue;
-    //   })
-    // }
   });
   test.each([
     {testName: "empty value", value: ""},

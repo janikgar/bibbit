@@ -4,26 +4,36 @@ import { addToDB } from "./search";
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
 export default function loadRecipes() {
-  let modalToggler = document.getElementById("modal-toggler");
+  prepareLoadRecipes();
+  parseManifest();
+}
 
+export function prepareLoadRecipes() : boolean {
   let recipeHolder = document.getElementById("recipeHolder");
-
   if (recipeHolder) {
     recipeHolder.querySelectorAll("div").forEach((div) => {
       div.remove();
     })
+  } else {
+    return false
   }
-
+  
   let dropdownList = document.getElementById("recipeDropdownList");
   if (dropdownList) {
     dropdownList.querySelectorAll("li").forEach((li) => {
       li.remove();
     })
+  } else {
+    return false
   }
 
+  return true
+}
+
+export function parseManifest() {
+  let modalToggler = document.getElementById("modal-toggler");
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
-      console.log(response.headers);
       if (response.headers.get("x-from-cache") !== "true") {
         modalToggler?.click();
       }
