@@ -48,6 +48,15 @@ export function initDB() {
 }
 
 export function searchByName(name: string) {
+  let recipes = getSearchableRecipes(name);
+  if (recipes.length > 0 ){
+    genAutocomplete(recipes);
+  }
+}
+
+export function getSearchableRecipes(name: string) : Array<string> {
+  let successArray = new Array();
+
   let lowerName = name.toLowerCase();
 
   let request = window.indexedDB.open("bibbit", 1);
@@ -85,14 +94,12 @@ export function searchByName(name: string) {
         }
         cursor.continue();
       }
-      let successArray = new Array();
       successes.forEach((val) => {
         successArray.push(val)
       });
-
-      genAutocomplete(successArray);
     })
   }
+  return successArray
 }
 
 export function genAutocomplete(results: Array<string>) {

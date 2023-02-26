@@ -1,10 +1,12 @@
-import { addToDB, initDB, genAutocomplete, searchByName, autoComplete } from "../search"
+import { addToDB, initDB, genAutocomplete, getSearchableRecipes, autoComplete } from "../search"
 import { Parser } from "@cooklang/cooklang-ts"
 import { describe, test, expect, beforeEach, beforeAll, jest } from "@jest/globals"
 import "fake-indexeddb/auto"
 import { IDBFactory, IDBOpenDBRequest } from "fake-indexeddb"
 
 jest.useFakeTimers();
+
+const htmlFile = require("../../dist/index.html");
 
 var parseText = `
 >> title: Negroni
@@ -25,6 +27,7 @@ var parseResult = recipeParser.parse(parseText);
 
 beforeEach(() => {
   indexedDB = new IDBFactory();
+  document.body.outerHTML = htmlFile;
 })
 
 describe("search", () => {
@@ -50,7 +53,7 @@ describe("search", () => {
     {testName: "empty value", value: ""},
     {testName: "existing value", value: "1234"},
   ])('autoComplete: $testName', ({value}) => {
-    document.body.innerHTML = `<div id="autocomplete"></div>`;
+    initDB();
     genAutocomplete(["foo bar"]);
     let target = document.createElement("input");
     target.value = value;
@@ -59,6 +62,7 @@ describe("search", () => {
   });
 
   test("addToDB", () => {
+    initDB();
     expect(addToDB(parseResult)).toBeUndefined();
   });
 });
@@ -69,22 +73,14 @@ describe("search autocomplete", () => {
     expect(genAutocomplete(["foo bar"])).toBeUndefined();
   })
   test("autocomplete classes", () => {
+    genAutocomplete(["foo bar"]);
     expect(document.getElementsByClassName("list-group").length).toEqual(1);
     expect(document.getElementsByClassName("list-group-item").length).toEqual(1);
     expect(document.getElementsByClassName("list-group-item-action").length).toEqual(1);
   })
 });
 
-test("searchByName", () => {
-  document.body.innerHTML = `<div id="autocomplete"></div>`;
-  // jest.mock("./search", () => {
-  //   const originalModule = jest.requireActual("./search") as any;
-
-  //   return {
-  //     __esModule: true,
-  //     ...originalModule,
-  //     genAutocomplete: jest.fn(() => {return}),
-  //   }
-  // });
-  expect(searchByName("negroni")).toBeUndefined();
+test("getSearchableRecipes", () => {
+  initDB();
+  expect(getSearchableRecipes("negroni")).toEqual([]);
 });
