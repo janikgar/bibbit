@@ -87,15 +87,31 @@ describe("cook", () => {
 
   test("parseRecipe", () => {
     expect(parseRecipe(parseResult)).toBeUndefined();
-  });``
+  });
 
   test.each([
-    {name: "success", success: true},
-    {name: "fail", success: false},
-  ])('prepareLoadRecipe: $name', ({success}) => {
+    { name: "success", success: true, missingDivs: false},
+    { name: "fail", success: false, missingDivs: false},
+    { name: "missing divs", success: false, missingDivs: true},
+  ])('prepareLoadRecipe: $name', ({success, missingDivs}) => {
     if (!success) {
       document.body.outerHTML = '';
     }
+
+    let recipeHolder = document.getElementById('recipeHolder');
+    if (recipeHolder) {
+      recipeHolder.innerHTML = "<div><div></div></div>"
+    }
+
+    let dropdownList = document.getElementById('recipeDropdownList');
+    if (dropdownList) {
+      dropdownList.innerHTML = "<li></li><li></li>";
+    }
+
+    if (missingDivs) {
+      dropdownList?.remove();
+    }
+    
     expect(prepareLoadRecipes()).toEqual(success);
   })
 
@@ -109,10 +125,10 @@ describe("cook", () => {
     })
     global.fetch = mockFetch
 
-    expect(parseManifest()).toBeUndefined();
+    expect(parseManifest()).toEqual(true);
   });
 
-  // test("loadRecipes", () => {
-  //   expect(loadRecipes()).toBeUndefined();
-  // });
+  test("loadRecipes", () => {
+    expect(loadRecipes()).toEqual(true);
+  });
 })

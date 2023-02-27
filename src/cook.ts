@@ -3,9 +3,13 @@ import { addToDB } from "./search";
 
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
-export default function loadRecipes() {
-  prepareLoadRecipes();
-  parseManifest();
+export default function loadRecipes() : boolean {
+  let prepared = prepareLoadRecipes();
+  if (prepared) {
+    let parsed = parseManifest();
+    return parsed
+  }
+  return false
 }
 
 export function prepareLoadRecipes() : boolean {
@@ -30,7 +34,7 @@ export function prepareLoadRecipes() : boolean {
   return true
 }
 
-export function parseManifest() {
+export function parseManifest() : boolean {
   let modalToggler = document.getElementById("modal-toggler");
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
@@ -69,6 +73,7 @@ export function parseManifest() {
         modalCloser?.click();
       }, 500);
     });
+    return true
 }
 
 export function incrementProgress(percent: number) {
