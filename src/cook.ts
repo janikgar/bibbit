@@ -96,12 +96,12 @@ export function incrementProgress(percent: number) {
   progressBar?.setAttribute("style", `width: ${String(newProgress)}%;`)
 }
 
-export async function loadRecipe(recipeName: string, incrementAmount: number) : Promise<boolean> {
+export function loadRecipe(recipeName: string, incrementAmount: number) : boolean {
   fetch(`${baseUrl}/${recipeName}`).then((response) => {
     response.text().then((text) => {
       let recipeToRead = new Parser;
       let parsedText = recipeToRead.parse(text);
-      addToDB(parsedText)
+      addToDB(parsedText);
       parseRecipe(parsedText);
       incrementProgress(incrementAmount);
       return true
@@ -114,7 +114,7 @@ export async function loadRecipe(recipeName: string, incrementAmount: number) : 
   return false
 }
 
-function parseQueryString() {
+export function parseQueryString(): { [key: string]: Array<string> } {
   const urlParams = new URLSearchParams(location.search);
   let paramMap: { [key: string]: Array<string> } = {};
   urlParams.forEach((value, key) => {

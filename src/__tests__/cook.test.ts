@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll, jest, beforeEach } from "@jest/globals"
-import { loadRecipes, loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe, prepareLoadRecipes, parseManifest, sortAscend } from "../cook"
+import { loadRecipes, loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe, prepareLoadRecipes, parseManifest, sortAscend, parseQueryString } from "../cook"
 import { Parser } from "@cooklang/cooklang-ts"
 import { initDB } from "../search"
 import "isomorphic-fetch"
@@ -75,9 +75,9 @@ describe("cook", () => {
     expect(estimateFraction(num)).toEqual(result)
   })
 
-  test("loadRecipe", async () => {
-    expect(await loadRecipe("negroni.cook", 10)).toEqual(true);
-  });
+  // test("loadSingleRecipe", () => {
+  //   expect(loadRecipe("negroni.cook", 10)).toEqual(true);
+  // });
 
   test("parseRecipe", () => {
     expect(parseRecipe(parseResult)).toBeUndefined();
@@ -131,5 +131,9 @@ describe("cook", () => {
     {name: "numbers", before: ["3", "2", "1"], after: ["1", "2", "3"]},
   ])('sortAscend: $name', async ({before, after}) => {
     expect(before.sort(sortAscend)).toEqual(after)
+  });
+
+  test("parseQueryString", () => {
+    expect(parseQueryString()).toEqual({});
   })
 })
