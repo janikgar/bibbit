@@ -3,11 +3,10 @@ import { addToDB } from "./search";
 
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
-export default function loadRecipes() : boolean {
+export async function loadRecipes() : Promise<boolean> {
   let prepared = prepareLoadRecipes();
   if (prepared) {
-    let parsed = parseManifest();
-    return parsed
+    return parseManifest()
   }
   return false
 }
@@ -34,7 +33,33 @@ export function prepareLoadRecipes() : boolean {
   return true
 }
 
-export function parseManifest() : boolean {
+export function sortAscend(a: string, b: string) : number {
+  if (a < b) {
+    return -1
+  }
+  return 1
+}
+
+function manifestLoadFiles(responseText: any) : boolean {
+  incrementProgress(10);
+  let fileNames = responseText['files'] as Array<string>
+  let sortedFileNames = fileNames.sort(sortAscend)
+
+  let progressBarUnits = 90;
+  if (fileNames.length > 0) {
+    progressBarUnits = 90 / fileNames.length
+  }
+
+  let allReturns = true
+
+  sortedFileNames.forEach(async (fileName) => {
+    allReturns &&= await loadRecipe(fileName, progressBarUnits);
+  })
+
+  return allReturns
+}
+
+export async function parseManifest() : Promise<boolean> {
   let modalToggler = document.getElementById("modal-toggler");
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
@@ -44,25 +69,9 @@ export function parseManifest() : boolean {
       if (response.status <= 299) {
         response.json()
           .then((responseText) => {
-            incrementProgress(10);
-            let fileNames = responseText['files'] as Array<string>
-            let sortedFileNames = fileNames.sort((a: string, b: string) => {
-              if (a < b) {
-                return -1
-              }
-              return 1
-            })
-
-            let progressBarUnits = 90;
-            if (fileNames.length > 0) {
-              progressBarUnits = 90 / fileNames.length
-            }
-
-            for (let fileName of sortedFileNames) {
-              loadRecipe(fileName, progressBarUnits);
-            }
+            manifestLoadFiles(responseText);
           }).catch((reason) => {
-            console.log(`could not open JSON: ${reason}`)
+            console.log(`could not open JSON: ${reason}`);
           })
       }
     }).catch((reason) => {
@@ -87,7 +96,7 @@ export function incrementProgress(percent: number) {
   progressBar?.setAttribute("style", `width: ${String(newProgress)}%;`)
 }
 
-export function loadRecipe(recipeName: string, incrementAmount: number) {
+export async function loadRecipe(recipeName: string, incrementAmount: number) : Promise<boolean> {
   fetch(`${baseUrl}/${recipeName}`).then((response) => {
     response.text().then((text) => {
       let recipeToRead = new Parser;
@@ -95,12 +104,14 @@ export function loadRecipe(recipeName: string, incrementAmount: number) {
       addToDB(parsedText)
       parseRecipe(parsedText);
       incrementProgress(incrementAmount);
+      return true
     }).catch((reason) => {
       console.log(`could not load recipe text ${recipeName}: ${reason}`)
     });
   }).catch((reason) => {
     console.log(`could not load recipe ${recipeName}: ${reason}`)
   });
+  return false
 }
 
 function parseQueryString() {

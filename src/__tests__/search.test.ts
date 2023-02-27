@@ -1,4 +1,4 @@
-import { addToDB, initDB, genAutocomplete, getSearchableRecipes, autoComplete } from "../search"
+import { addToDB, initDB, genAutocomplete, autoComplete, searchByName } from "../search"
 import { Parser } from "@cooklang/cooklang-ts"
 import { describe, test, expect, beforeEach, beforeAll, jest } from "@jest/globals"
 import "fake-indexeddb/auto"
@@ -54,7 +54,7 @@ describe("search", () => {
     {testName: "existing value", value: "1234"},
   ])('autoComplete: $testName', ({value}) => {
     initDB();
-    genAutocomplete(["foo bar"]);
+    genAutocomplete(new Set(["foo bar"]));
     let target = document.createElement("input");
     target.value = value;
     target.addEventListener("focus", autoComplete);
@@ -70,17 +70,17 @@ describe("search", () => {
 describe("search autocomplete", () => {
   document.body.innerHTML = `<div id="autocomplete"></div>`;
   test("genAutocomplete", () => {
-    expect(genAutocomplete(["foo bar"])).toBeUndefined();
+    expect(genAutocomplete(new Set(["foo bar"]))).toBeUndefined();
   })
   test("autocomplete classes", () => {
-    genAutocomplete(["foo bar"]);
+    genAutocomplete(new Set(["foo bar"]));
     expect(document.getElementsByClassName("list-group").length).toEqual(1);
     expect(document.getElementsByClassName("list-group-item").length).toEqual(1);
     expect(document.getElementsByClassName("list-group-item-action").length).toEqual(1);
   })
 });
 
-test("getSearchableRecipes", () => {
+test("searchByName", () => {
   initDB();
-  expect(getSearchableRecipes("negroni")).toEqual([]);
+  expect(searchByName("negroni")).toBeUndefined();
 });

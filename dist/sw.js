@@ -30,7 +30,6 @@ const cacheAppend = async function (request, response) {
     cacheHeaders.set(key, value)
   })
 
-  cacheHeaders.set("content-type", "text/plain; charset=utf-8");
   cacheHeaders.set("x-from-cache", "true");
 
   newResponse = new Response(
@@ -40,7 +39,8 @@ const cacheAppend = async function (request, response) {
     }
   )
 
-  cache.put(request, newResponse)
+  cache.put(request, response)
+  // cache.put(request, newResponse)
     .catch(function (err) {
       console.log("error adding to cache: " + err)
     });

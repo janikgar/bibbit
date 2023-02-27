@@ -14,8 +14,6 @@ export function autoComplete(event: Event) {
   }
 }
 
-
-
 let searchBox = document.getElementById("searchBox");
 if (searchBox) {
   searchBox.addEventListener("blur", () => {
@@ -39,38 +37,31 @@ export function initDB() {
   }
   request.onupgradeneeded = (event: any) => {
     db = event.target.result as IDBDatabase;
-    let objectStore = db.createObjectStore("recipes", {keyPath: "name"});
+    let objectStore = db.createObjectStore("recipes", { keyPath: "name" });
 
-    objectStore.createIndex("name", "name", {unique: true});
-    objectStore.createIndex("ingredients", "ingredients", {multiEntry: true, unique: false});
-    objectStore.createIndex("tags", "tags", {multiEntry: true, unique: false});
+    objectStore.createIndex("name", "name", { unique: true });
+    objectStore.createIndex("ingredients", "ingredients", { multiEntry: true, unique: false });
+    objectStore.createIndex("tags", "tags", { multiEntry: true, unique: false });
   }
 }
 
 export function searchByName(name: string) {
-  let recipes = getSearchableRecipes(name);
-  if (recipes.length > 0 ){
-    genAutocomplete(recipes);
-  }
-}
-
-export function getSearchableRecipes(name: string) : Array<string> {
-  let successArray = new Array();
-
   let lowerName = name.toLowerCase();
-
+  
   let request = window.indexedDB.open("bibbit", 1);
   var db;
   request.onerror = (event: any) => {
     console.log(`indexeddb error: ${event.target}`);
   }
-
+  
   request.onsuccess = (event: any) => {
     db = event.target.result as IDBDatabase;
     let objectStore = db.transaction("recipes", "readonly").objectStore("recipes");
     
     let successes = new Set<string>();
+    
     objectStore.openCursor().onsuccess = ((event: any) => {
+      let successArray = new Array();
       let cursor = event.target.result as IDBCursorWithValue;
       if (cursor) {
         let curName = cursor.value.name as string;
@@ -87,7 +78,7 @@ export function getSearchableRecipes(name: string) : Array<string> {
           });
           let ingredients = cursor.value.ingredients as Array<string>;
           ingredients.forEach(ingredient => {
-            if (ingredient.includes(lowerName)) { 
+            if (ingredient.includes(lowerName)) {
               successes.add(cursor.key.toString());
             }
           })
@@ -97,16 +88,17 @@ export function getSearchableRecipes(name: string) : Array<string> {
       successes.forEach((val) => {
         successArray.push(val)
       });
+
+      genAutocomplete(successes);
     })
   }
-  return successArray
 }
 
-export function genAutocomplete(results: Array<string>) {
+export function genAutocomplete(results: Set<string>) {
   let acDiv = document.getElementById("autocomplete");
   let acList = document.createElement("div");
   acList.className = "list-group";
-  for (let result of results) {
+  results.forEach(result => {
     let shortTitle = result.replace(" ", "-").toLowerCase();
     let acListItem = document.createElement("a");
     acListItem.className = "list-group-item list-group-item-action";
@@ -114,7 +106,6 @@ export function genAutocomplete(results: Array<string>) {
     acListItem.innerText = result;
     acListItem.addEventListener("click", (event: Event) => {
       event.preventDefault();
-      console.log("click");
       let srcTarget = event.target as HTMLAnchorElement;
       let destTarget = srcTarget.href.split("#")[1];
       let destElement = document.getElementById(destTarget);
@@ -124,7 +115,7 @@ export function genAutocomplete(results: Array<string>) {
       }
     })
     acList.append(acListItem);
-  }
+  })
   if (acDiv) {
     acDiv.innerHTML = "";
     acDiv.append(acList);

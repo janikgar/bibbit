@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll, jest, beforeEach } from "@jest/globals"
-import loadRecipes, { loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe, prepareLoadRecipes, parseManifest } from "../cook"
+import { loadRecipes, loadRecipe, incrementProgress, innerJoin, isInArray, estimateFraction, parseRecipe, prepareLoadRecipes, parseManifest, sortAscend } from "../cook"
 import { Parser } from "@cooklang/cooklang-ts"
 import { initDB } from "../search"
 import "isomorphic-fetch"
@@ -36,12 +36,6 @@ beforeEach(() => {
 
 beforeAll(() => {
   initDB();
-
-  const mockFetch = jest.fn((url) => {
-    let resp = new Response(testRecipe);
-    return Promise.resolve(resp)
-  })
-  global.fetch = mockFetch
 })
 
 describe("cook", () => {
@@ -81,8 +75,8 @@ describe("cook", () => {
     expect(estimateFraction(num)).toEqual(result)
   })
 
-  test("loadRecipe", () => {
-    expect(loadRecipe("negroni.cook", 10)).toBeUndefined();
+  test("loadRecipe", async () => {
+    expect(await loadRecipe("negroni.cook", 10)).toEqual(true);
   });
 
   test("parseRecipe", () => {
@@ -115,7 +109,7 @@ describe("cook", () => {
     expect(prepareLoadRecipes()).toEqual(success);
   })
 
-  test("parseManifest", () => {
+  test("parseManifest", async () => {
     const mockFetch = jest.fn((url: RequestInfo | URL) => {
       let resp = new Response(testRecipe);
       if (url.toString().match("manifest")) {
@@ -125,10 +119,17 @@ describe("cook", () => {
     })
     global.fetch = mockFetch
 
-    expect(parseManifest()).toEqual(true);
+    expect(await parseManifest()).toEqual(true);
   });
 
-  test("loadRecipes", () => {
-    expect(loadRecipes()).toEqual(true);
+  test("loadRecipes", async () => {
+    expect(await loadRecipes()).toEqual(true);
   });
+
+  test.concurrent.each([
+    {name: "letters", before: ["c", "a", "b"], after: ["a", "b", "c"]},
+    {name: "numbers", before: ["3", "2", "1"], after: ["1", "2", "3"]},
+  ])('sortAscend: $name', async ({before, after}) => {
+    expect(before.sort(sortAscend)).toEqual(after)
+  })
 })

@@ -1,4 +1,4 @@
-import loadRecipes from "./cook";
+import { loadRecipes } from "./cook";
 import './main.scss';
 import 'bootstrap';
 import { initDB } from './search';
@@ -8,7 +8,7 @@ const registerServiceWorker = async () => {
     try {
       const registration = await navigator.serviceWorker.register(
         "/sw.js",
-        {scope: "/"}
+        { scope: "/" }
       );
       if ("sync" in registration) {
         console.log("sync is supported");
