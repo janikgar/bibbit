@@ -17,7 +17,7 @@ jobs:
       env:
         CI: true
     - name: S3/CloudFront Deploy
-      uses: staevs/s3-deploy-action@1.0.0
+      uses: staevs/s3-deploy-action@v1.2.3
       if: success()
       with:
         args: --acl public-read --follow-symlinks --delete --no-progress
