@@ -1,6 +1,6 @@
 {
-  "name": "drink-recipe",
-  "version": "1.0.1",
+  "name": "bibbit",
+  "version": "1.0.2",
   "description": "",
   "browser": "index.js",
   "scripts": {
