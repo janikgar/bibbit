@@ -14,7 +14,7 @@
   "dependencies": {
     "@cooklang/cooklang-ts": "^1.2.5",
     "bootstrap": "^5.3.2",
-    "css-loader": "^6.9.0",
+    "css-loader": "^7.0.0",
     "mini-css-extract-plugin": "^2.7.7",
     "postcss-loader": "^7.3.4",
     "sass": "^1.69.7",
