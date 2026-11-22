@@ -9,5 +9,5 @@ COPY src /app/src
 RUN npm install --save-dev && \
     npm run build
 
-FROM nginx:1.21.6-alpine
+FROM nginx:1.31.9-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
