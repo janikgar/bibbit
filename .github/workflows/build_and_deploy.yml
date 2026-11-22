@@ -10,17 +10,17 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v7
+    - name: Use Node.js 26.x
+      uses: actions/setup-node@v7
       with:
-        node-version: 18.x
+        node-version: 26.x
     - run: npm install --save-dev
     - run: npm run build
       env:
         CI: true
     - name: S3/CloudFront Deploy
-      uses: staevs/s3-deploy-action@v1.2.3
+      uses: staevs/s3-deploy-action@v1.2.4
       if: success()
       with:
         args: --acl public-read --follow-symlinks --delete --no-progress

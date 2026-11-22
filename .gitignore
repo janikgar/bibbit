@@ -7,3 +7,5 @@ dist/*.txt
 # *.js.map
 !sw.js
 !webpack.config.js
+result
+result/
