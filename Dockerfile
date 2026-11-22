@@ -1,4 +1,4 @@
-FROM node:14.19.1-bullseye as builder
+FROM node:26.8.1-bullseye as builder
 
 RUN mkdir -p /app
 WORKDIR /app
