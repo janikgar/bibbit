@@ -1,5 +1,5 @@
 import loadRecipes from "./cook";
-import './main.scss';
+import './main.css';
 import 'bootstrap';
 import { initDB } from './search';
 

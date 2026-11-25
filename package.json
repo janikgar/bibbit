@@ -5,28 +5,23 @@
   "browser": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "preserve": "npx webpack -c webpack.config.js",
-    "serve": "npx http-server dist -o",
-    "build": "npx webpack -c webpack.config.js"
+    "build": "bun build ./src/index.ts --outdir dist",
+    "serve": "bash -c \"bun build ./src/index.ts --outdir dist --watch & bun http-server dist -o -c-1\""
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@cooklang/cooklang-ts": "^1.2.5",
-    "bootstrap": "^5.3.2",
-    "css-loader": "^7.0.0",
-    "mini-css-extract-plugin": "^2.7.7",
-    "postcss-loader": "^8.0.0",
-    "sass": "^1.69.7",
-    "sass-loader": "^17.0.0",
-    "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^7.0.0",
-    "webpack": "^5.89.0"
+    "@cooklang/cooklang": "^0.19.1",
+    "bootstrap": "^5.3.9",
+    "postcss-loader": "^8.2.2",
+    "sass": "^1.108.2",
+    "sass-loader": "^17.1.1",
+    "ts-loader": "^9.6.2",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.2.3",
-    "http-server": "^14.1.1",
-    "webpack-cli": "^7.0.0"
-  }
+    "@types/bootstrap": "^5.2.11",
+    "http-server": "^14.1.1"
+  },
+  "type": "module"
 }

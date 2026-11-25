@@ -1,6 +1,3 @@
-import { ParseResult } from "@cooklang/cooklang-ts";
-
-
 function autoComplete(event: Event) {
   let targetElement = event.target as HTMLInputElement;
   let value = targetElement.value;
@@ -123,7 +120,7 @@ function genAutocomplete(results: Array<string>) {
   }
 }
 
-export function addToDB(entry: ParseResult) {
+export function addToDB(entry: any) {
   let request = window.indexedDB.open("bibbit", 1);
   var db;
   request.onerror = (event: any) => {
@@ -134,7 +131,7 @@ export function addToDB(entry: ParseResult) {
     let transaction = db.transaction("recipes", "readwrite");
 
     transaction.oncomplete = () => {
-      // console.log("IDB transaction OK");
+      console.log("IDB transaction OK");
     };
     transaction.onerror = (event: any) => {
       let target = event.target as IDBRequest;
@@ -143,8 +140,8 @@ export function addToDB(entry: ParseResult) {
     }
 
     var ingredients = new Array<string>();
-    entry.steps.forEach(step => {
-      step.forEach(subStep => {
+    entry.steps.forEach((step: any) => {
+      step.forEach((subStep: any) => {
         if (subStep.type === "ingredient") {
           ingredients.push(subStep.name);
         }

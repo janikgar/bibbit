@@ -1,4 +1,4 @@
-import { Parser, ParseResult } from "@cooklang/cooklang-ts";
+import { Parser } from "@cooklang/cooklang";
 import { addToDB } from "./search";
 
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
@@ -77,14 +77,15 @@ function loadRecipe(recipeName: string, incrementAmount: number) {
     response.text().then((text) => {
       let recipeToRead = new Parser;
       let parsedText = recipeToRead.parse(text);
-      addToDB(parsedText)
+      console.log(`entry.metadata.tags: ${parsedText.metadata["tags"]}`);
+      addToDB(parsedText);
       parseRecipe(parsedText);
       incrementProgress(incrementAmount);
-    }).catch((reason) => {
+    })/*.catch((reason) => {
       console.log(`could not load recipe text ${recipeName}: ${reason}`)
     });
   }).catch((reason) => {
-    console.log(`could not load recipe ${recipeName}: ${reason}`)
+    console.log(`could not load recipe ${recipeName}: ${reason}`)*/
   });
 }
 
@@ -202,7 +203,7 @@ function estimateFraction(quantity: number | string) {
   return quantity
 }
 
-function parseRecipe(parseResult: ParseResult) {
+function parseRecipe(parseResult: any) {
   let queryTags = parseQueryString()["tags"];
 
   let recipeHolder = document.getElementById("recipeHolder");
