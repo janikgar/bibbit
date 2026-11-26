@@ -131,7 +131,7 @@ export function addToDB(entry: any) {
     let transaction = db.transaction("recipes", "readwrite");
 
     transaction.oncomplete = () => {
-      console.log("IDB transaction OK");
+      // empty; can log in the future if desired for debugging
     };
     transaction.onerror = (event: any) => {
       let target = event.target as IDBRequest;
@@ -140,18 +140,14 @@ export function addToDB(entry: any) {
     }
 
     var ingredients = new Array<string>();
-    entry.steps.forEach((step: any) => {
-      step.forEach((subStep: any) => {
-        if (subStep.type === "ingredient") {
-          ingredients.push(subStep.name);
-        }
-      })
-    })
+    entry.recipe.ingredients.forEach((ingredient: any) => {
+        ingredients.push(ingredient.name);
+    });
 
     let objectStore = transaction.objectStore("recipes");
     objectStore.put({
       "name": entry.metadata["title"],
-      "tags": entry.metadata["tags"].split(","),
+      "tags": entry.metadata.tags,
       "ingredients": ingredients,
     })
   }

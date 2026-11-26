@@ -1,4 +1,53 @@
-@import "../node_modules/bootstrap/dist/css/bootstrap.css";
+/*@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";*/
+@import "../node_modules/@picocss/pico/css/pico.colors.min.css";
+@import "../node_modules/@picocss/pico/css/pico.blue.min.css";
+
+#recipeHolder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  margin: 10px 10px 10px 10px;
+  width: 400px;
+  background-color: #0F3888; 
+  padding: 0;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75em;
+  padding: 0.35em 0.65em;
+  border-radius: 50rem;
+}
+
+.card-title {
+  display: block;
+  background-color: #0F3888;
+  margin: 1rem 0.5rem 0 0.5rem;
+}
+
+.card-body {
+  background-color: #13171F;
+}
+
+.card-footer {
+  background-color: #646B79;
+  margin: 0;
+}
+
+.tag-primary {
+  background-color: #0F3888; 
+}
+
+.tag-secondary {
+  background-color: #1A1F28; 
+}
+
+.search {
+  margin-bottom: revert;
+}
 
 .tagBadge::before {
   content: "#";

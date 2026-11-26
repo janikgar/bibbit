@@ -4,13 +4,13 @@ import { addToDB } from "./search";
 const baseUrl = "https://raw.githubusercontent.com/janikgar/drink-recipes/main";
 
 export default function loadRecipes() {
-  let modalToggler = document.getElementById("modal-toggler");
+  let modalToggler = document.getElementById("modal-toggler") as HTMLDialogElement;
 
   let recipeHolder = document.getElementById("recipeHolder");
 
   if (recipeHolder) {
-    recipeHolder.querySelectorAll("div").forEach((div) => {
-      div.remove();
+    recipeHolder.querySelectorAll("article").forEach((article) => {
+      article.remove();
     })
   }
 
@@ -23,9 +23,8 @@ export default function loadRecipes() {
 
   fetch(`${baseUrl}/manifest.json`)
     .then((response) => {
-      console.log(response.headers);
       if (response.headers.get("x-from-cache") !== "true") {
-        modalToggler?.click();
+        modalToggler!.show();
       }
       if (response.status <= 299) {
         response.json()
@@ -55,9 +54,8 @@ export default function loadRecipes() {
       console.log(`could not load recipes: ${reason}`);
     }).finally(() => {
       setTimeout(() => {
-        let modalCloser = document.getElementById("modal-closer");
-        modalCloser?.click();
-      }, 500);
+        modalToggler!.close();
+      }, 750);
     });
 }
 
@@ -75,9 +73,8 @@ function incrementProgress(percent: number) {
 function loadRecipe(recipeName: string, incrementAmount: number) {
   fetch(`${baseUrl}/${recipeName}`).then((response) => {
     response.text().then((text) => {
-      let recipeToRead = new Parser;
+      let recipeToRead = new Parser();
       let parsedText = recipeToRead.parse(text);
-      console.log(`entry.metadata.tags: ${parsedText.metadata["tags"]}`);
       addToDB(parsedText);
       parseRecipe(parsedText);
       incrementProgress(incrementAmount);
@@ -130,75 +127,71 @@ function isInArray(array: Array<string>, testString: string) {
 }
 
 function estimateFraction(quantity: number | string) {
-  if (typeof quantity === "number") {
-    let remainder = quantity % 1;
-    let base = String(quantity - remainder);
-    let fraction = "";
-    if (base === "0") {
-      base = "";
-    }
-    if ((remainder * 2) % 2 === 1) {
-      fraction = "½";
-    }
-    if ((remainder * 3) % 3 !== 0) {
-      let numerator = (remainder * 3) % 3;
-      switch (numerator) {
-        case 1:
-          fraction = "⅓";
-          break;
+  switch (typeof quantity) {
+    case "object":
+      let base = "";
+      if (quantity['whole'] > 0) {
+        base = String(quantity['whole']);
+      }
+      let fraction = ""
+      switch (quantity['den']) {
         case 2:
-          fraction = "⅔";
-          break;
-        default:
-          break;
-      }
-    }
-    if ((remainder * 4) % 4 !== 0) {
-      let numerator = (remainder * 4) % 4;
-      switch (numerator) {
-        case 1:
-          fraction = "¼";
+          if (quantity['num'] == 1) {
+            fraction = "½";
+          }
           break;
         case 3:
-          fraction = "¾";
+          switch (quantity['num']) {
+            case 1:
+              fraction = "⅓";
+              break;
+            case 2:
+              fraction = "⅔";
+              break;
+          }
           break;
-        default:
+        case 4:
+          switch (quantity['num']) {
+            case 1:
+              fraction = "¼";
+              break;
+            case 3:
+              fraction = "¾";
+              break;
+          }
+          break;
+        case 6:
+          switch (quantity['num']) {
+            case 1:
+              fraction = "⅙";
+              break;
+            case 5:
+              fraction = "⅚";
+              break;
+          }
+          break;
+        case 8:
+          switch (quantity['num']) {
+            case 1:
+              fraction = "⅛";
+              break;
+            case 3:
+              fraction = "⅜";
+              break;
+            case 5:
+              fraction = "⅝";
+              break;
+            case 7:
+              fraction = "⅞";
+              break;
+          }
           break;
       }
-    }
-    if ((remainder * 6) % 6 !== 0) {
-      let numerator = (remainder * 6) % 6;
-      switch (numerator) {
-        case 1:
-          fraction = "⅙";
-          break;
-        case 5:
-          fraction = "⅚";
-          break;
-        default:
-          break;
-      }
-    }
-    if ((remainder * 8) % 8 !== 0) {
-      let numerator = (remainder * 8) % 8;
-      switch (numerator) {
-        case 1:
-          fraction = "⅛";
-          break;
-        case 3:
-          fraction = "⅜";
-          break;
-        case 5:
-          fraction = "⅝";
-          break;
-        case 7:
-          fraction = "⅞";
-          break;
-        default:
-          break;
-      }
-    }
-    return `${base}${fraction}`
+      return `${base}${fraction}`
+      break;
+    default:
+      return String(quantity)
+      break;
   }
   return quantity
 }
@@ -221,9 +214,8 @@ function parseRecipe(parseResult: any) {
     if (parseResult.metadata["title"]) {
       fullTitle = parseResult.metadata["title"];
       shortTitle = fullTitle.replace(/\W+/g, "-").toLowerCase();
-      cardTitle.innerHTML = `<a id="${shortTitle}">${fullTitle}</a>`;
-      cardTitle.setAttribute("href", `#${shortTitle}-body`);
-      cardTitle.setAttribute("aria-controls", `${shortTitle}-body`);
+      /*cardTitle.innerHTML = `<div role="button" id="${shortTitle}">${fullTitle}</div>`;*/
+      cardTitle.innerHTML = fullTitle;
       let cardParent = cardTitle.parentElement;
       if (cardParent) {
         cardParent.addEventListener("click", (event: Event) => {
@@ -237,12 +229,9 @@ function parseRecipe(parseResult: any) {
       }
 
       let dropdownListEntry = document.createElement("li");
-      let dropdownListEntryLink = document.createElement("a");
-      dropdownListEntryLink.href = `#${shortTitle}`;
-      dropdownListEntryLink.className = "dropdown-item";
-      dropdownListEntryLink.innerText = fullTitle;
+      dropdownListEntry.innerText = fullTitle;
 
-      dropdownListEntryLink.addEventListener("click", (event) => {
+      dropdownListEntry.addEventListener("click", (event) => {
         event.preventDefault();
         document.getElementById("closeButton")?.click();
         let srcTarget = event.target as HTMLAnchorElement;
@@ -253,12 +242,6 @@ function parseRecipe(parseResult: any) {
         }
       })
 
-      dropdownListEntryLink.setAttribute("aria-controls", `${shortTitle}-body`);
-      dropdownListEntryLink.setAttribute("aria-expanded", "false");
-      dropdownListEntryLink.setAttribute("data-bs-toggle", "collapse");
-      dropdownListEntryLink.setAttribute("role", "button");
-
-      dropdownListEntry.append(dropdownListEntryLink);
       dropdownList?.append(dropdownListEntry);
     }
   }
@@ -267,9 +250,8 @@ function parseRecipe(parseResult: any) {
     cardBody.id = `${shortTitle}-body`
   }
 
-  if (parseResult.metadata["tags"]) {
-    let tags = parseResult.metadata["tags"]
-    let tagArray = tags.split(",")
+  if (parseResult.metadata.tags) {
+    let tagArray = parseResult.metadata.tags
 
     if (queryTags) {
       if (innerJoin(queryTags, tagArray).size === 0) {
@@ -280,11 +262,11 @@ function parseRecipe(parseResult: any) {
     let cardFooter = recipeClone?.querySelector(".card-footer");
     for (let tag of tagArray) {
       let tagBadge = document.createElement("span");
-      tagBadge.className = "badge rounded-pill ";
+      tagBadge.className = "badge ";
       if (isInArray(queryTags, tag)) {
-        tagBadge.className += "bg-primary"
+        tagBadge.className += "tag-primary"
       } else {
-        tagBadge.className += "bg-secondary"
+        tagBadge.className += "tag-secondary"
       }
       tagBadge.innerHTML = `<span class="tagBadge">${tag}</span>`;
       tagBadge.addEventListener("click", (event: Event) => {
@@ -292,8 +274,10 @@ function parseRecipe(parseResult: any) {
           if (isInArray(queryTags, tag) === false) {
             let target = event.target as HTMLElement;
             window.history.pushState(null, "", `/index.html?tags=${target.innerText}`);
+            tagBadge.className = "badge tag-primary";
           } else {
             window.history.pushState(null, "", "/index.html");
+            tagBadge.className = "badge tag-secondary";
           }
           loadRecipes();
         }
@@ -311,47 +295,47 @@ function parseRecipe(parseResult: any) {
   let equipmentList = recipeClone?.querySelector(".equipmentList");
   let equipmentArray = new Array<Node>();
 
-  for (let step of parseResult.steps) {
-    let stepOfType = "";
-    for (let subStep of step) {
-      switch (subStep.type) {
-        case "ingredient":
-          stepOfType += `<abbr title="${subStep.quantity} ${subStep.units}">${subStep.name}</abbr>`;
-          let ingredient = document.createElement("li");
-          let quantity = estimateFraction(subStep.quantity);
-          ingredient.innerText = `${quantity} ${subStep.units} ${subStep.name}`
-          // ingredient.className = "list-group-item";
-          ingredientArray.push(ingredient);
-          break;
-        case "cookware":
-          stepOfType += `<abbr title="${subStep.quantity}">${subStep.name}</abbr>`
-          let equipment = document.createElement("li");
-          let equipmentCountIfNotOne = "";
-          if (subStep.quantity != 1) {
-            equipmentCountIfNotOne = `${subStep.quantity} `
-          }
-          equipment.innerText = `${equipmentCountIfNotOne}${subStep.name}`
-          // equipment.className = "list-group-item";
-          equipmentArray.push(equipment);
-          break;
-        case "text":
-          if (subStep.value != "") {
-            stepOfType += subStep.value
-          }
-          break;
-        case "timer":
-          stepOfType += `<abbr title="${subStep.quantity} ${subStep.units}">${subStep.name}</abbr>`
-          break;
-        default:
-          break;
-      }
+  for (let item of parseResult.recipe.cookware) {
+    let stepOfType = `<abbr title="${item.quantity?.value.value.value || ""}">${item.name}</abbr>`
+    let equipment = document.createElement("li");
+    let equipmentCountIfNotOne = "";
+    if (item.quantity != 1) {
+      equipmentCountIfNotOne = `${item.quantity?.value.value.value || ""} `
     }
+    equipment.innerText = `${equipmentCountIfNotOne}${item.name}`
+    equipmentArray.push(equipment);
+  }
 
-    // not sure why this is needed, but metadata appears to add zero-length steps
-    if (stepOfType.length > 1) {
+  for (let item of parseResult.recipe.ingredients) {
+    let stepOfType = `<abbr title="${item.quantity?.value.value.value || ""} ${item.quantity?.unit || ""}">${item.name}</abbr>`;
+    let ingredient = document.createElement("li");
+    let quantity = estimateFraction(item.quantity?.value.value.value);
+    ingredient.innerText = `${quantity} ${item.quantity?.unit || ""} ${item.name}`
+    ingredientArray.push(ingredient);
+  }
+
+  /*for (let item of parseResult.recipe.timers) {
+    let stepOfType = `<abbr title="${item.quantity.value.value} ${subStep.quantity.unit}">${item.name}</abbr>`
+  }*/
+
+  for (let section of parseResult.recipe.sections) {
+    for (let step of section.content) {
+      let stepText = ""
+      for (let stepPart of step.value.items) {
+        switch (stepPart.type) {
+          case "text":
+            stepText += stepPart.value
+            break;
+          case "ingredient":
+            stepText += parseResult.recipe.ingredients[stepPart.index].name;
+            break;
+          case "cookware":
+            stepText += parseResult.recipe.cookware[stepPart.index].name;
+            break;
+        }
+      }
       let listItem = document.createElement("li");
-      // listItem.className = "list-group-item";
-      listItem.innerHTML = stepOfType;
+      listItem.innerHTML = stepText;
       stepArray.push(listItem);
     }
   }

@@ -1,19 +1,20 @@
 import loadRecipes from "./cook";
-import './main.css';
-import 'bootstrap';
+//import 'bootstrap';
 import { initDB } from './search';
 
 const registerServiceWorker = async () => {
   if ("serviceWorker" in navigator) {
     try {
+      const swStatus = await navigator.serviceWorker.ready;
+      if (swStatus.active?.state === "activated") {
+        return
+      }
       const registration = await navigator.serviceWorker.register(
-        "/sw.js",
+        "/service-worker.js",
         {scope: "/"}
       );
       if ("sync" in registration) {
         console.log("sync is supported");
-      } else {
-        console.log("sync is not supported");
       }
       if (registration.installing) {
         console.log("installing service worker...");

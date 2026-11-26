@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <link href="./manifest.json" rel="manifest">
+    <link href="./main.css" rel="stylesheet">
+    <link href="./images/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="./favicon.ico" rel="icon">
+    <title>Bibbit</title>
+  </head>
+  <body class="custom bg-dark">
+    <div id="bodyDiv" class="container">
+      <nav>
+        <ul>
+          <li>
+            <a class="nav-link active" aria-current="page" href="#">
+              <h1>B<small>ibbit</small></h1>
+            </a>
+          </li>
+          <li class="nav-item">
+          </li>
+          <li>
+            <form role="search" class="search">
+              <div style="position: relative;">
+                <input type="search" placeholder="Search" aria-label="Search" id="searchBox" autocomplete="off" aria-label="Search">
+                <div id="autocomplete" class="box-shadow" style="z-index: 999; position: absolute; width: 100%; top: 40px;"></div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <details class="dropdown">
+              <summary>
+                Recipes
+              </summary>
+              <ul id="recipeDropdownList">
+              </ul>
+            </details>
+          </li>
+          <li>
+              <button class="btn btn-outline-secondary" id="refreshBtn">Sync Recipes</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container bg-dark">
+      <section>
+        <dialog id="modal-toggler">
+          <article>
+            <header>
+              <button aria-label="Close" rel="prev"></button>
+            </header>
+            <h4>Loading beverages...</h4>
+            <progress />
+          </article>
+        </dialog>
+        <div id="recipeHolder">
+          <template id="recipeTemplate">
+            <article class="card">
+              <details class="card-header">
+                <summary class="card-title">
+                  Recipe
+                </summary>
+                <div class="card-body">
+                  <h6 class="equipmentTitle">Equipment</h6>
+                  <ul class="equipmentList">
+
+                  </ul>
+                  <h6 class="ingredientsTitle">Ingredients</h6>
+                  <ul class="ingredientList">
+                    
+                  </ul>
+                  <hr>
+                  <ol class="stepList">
+
+                  </ol>
+                </div>
+              </details>
+              <footer class="card-footer">
+              </footer>
+            </article>
+          </template>
+        </div>
+      </section>
+    </div>
+    <script src="./index.ts"></script>
+  </body>
+</html>
