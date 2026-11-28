@@ -24,9 +24,19 @@
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.11",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.6.10",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
     "webpack-cli": "^7.3.1",
     "workbox-webpack-plugin": "^7.4.1"
   },
-  "type": "module"
+  "test": {
+    "init": true
+  },
+  "scripts": {
+    "build": "bun x webpack -c webpack.config.js",
+    "test": "jest",
+    "serve": "bun x webpack serve"
+  }
 }

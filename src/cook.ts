@@ -114,7 +114,7 @@ function innerJoin(arr1: Array<string>, arr2: Array<string>) {
   return newMap
 }
 
-function isInArray(array: Array<string>, testString: string) {
+export function isInArray(array: Array<string>, testString: string) {
   if (array === undefined || testString === undefined) {
     return false
   }
@@ -126,74 +126,63 @@ function isInArray(array: Array<string>, testString: string) {
   return false
 }
 
-function estimateFraction(quantity: number | string) {
-  switch (typeof quantity) {
-    case "object":
-      let base = "";
-      if (quantity['whole'] > 0) {
-        base = String(quantity['whole']);
-      }
-      let fraction = ""
-      switch (quantity['den']) {
-        case 2:
-          if (quantity['num'] == 1) {
-            fraction = "½";
-          }
-          break;
-        case 3:
-          switch (quantity['num']) {
-            case 1:
-              fraction = "⅓";
-              break;
-            case 2:
-              fraction = "⅔";
-              break;
-          }
-          break;
-        case 4:
-          switch (quantity['num']) {
-            case 1:
-              fraction = "¼";
-              break;
-            case 3:
-              fraction = "¾";
-              break;
-          }
-          break;
-        case 6:
-          switch (quantity['num']) {
-            case 1:
-              fraction = "⅙";
-              break;
-            case 5:
-              fraction = "⅚";
-              break;
-          }
-          break;
-        case 8:
-          switch (quantity['num']) {
-            case 1:
-              fraction = "⅛";
-              break;
-            case 3:
-              fraction = "⅜";
-              break;
-            case 5:
-              fraction = "⅝";
-              break;
-            case 7:
-              fraction = "⅞";
-              break;
-          }
-          break;
-      }
-      return `${base}${fraction}`
-      break;
-    default:
-      return String(quantity)
-      break;
+export function estimateFraction(quantity: number | string): string {
+  if (typeof quantity === 'string') {
+    return String(quantity);
   }
-  return quantity
+
+  if (typeof quantity === 'object') {
+    const frac = quantity;
+    // Handle object with num/den properties (fraction)
+    if (frac['num'] !== undefined && frac['den'] !== undefined) {
+      let base = "";
+      if (frac['whole'] > 0) {
+        base = String(frac['whole']);
+      }
+
+      const den = frac['den'];
+      const num = frac['num'];
+      
+      switch (den) {
+        case 2:
+          return (num === 1) ? "½" : `${base}²`;
+        case 3:
+          return (num === 1) ? "⅓" : "⅔";
+        case 4:
+          return (num === 1 || num === 3) 
+            ? (num === 1 ? "¼" : "¾") 
+            : `${base}${num}`;
+        case 6:
+          return (num === 1 || num === 5) 
+            ? (num === 1 ? "⅙" : "⅚") 
+            : `${base}${num}`;
+        case 8:
+          const eighth = (num === 1 || num === 3 || num === 5 || num === 7) 
+            ? (num === 1 ? "⅛" : num === 3 ? "⅜" : num === 5 ? "⅝" : "⅞") 
+            : `${base}${num}`;
+          return eighth;
+      }
+    }
+  }
+
+  // Handle regular numbers - check for common fractions first
+  const num = Number(quantity);
+  if (Number.isNaN(num)) {
+    return String(quantity);
+  }
+
+  switch (num) {
+    case 0.5:
+      return "½";
+    case 1:
+      return "1";
+    case 1.5:
+      return "½";
+    case 2:
+      return "2";
+    default:
+      return String(quantity);
+  }
 }
 
 function parseRecipe(parseResult: any) {

@@ -12,19 +12,25 @@ function autoComplete(event: Event) {
   }
 }
 
-let searchBox = document.getElementById("searchBox");
-if (searchBox) {
-  searchBox.addEventListener("blur", () => {
-    setTimeout(() => {
-      let ac = document.getElementById("autocomplete");
-      if (ac) {
-        ac.innerHTML = "";
-      }
-    }, 1000);
-  })
+let searchBox: HTMLInputElement | null = null;
+try {
+  searchBox = (document.getElementById("searchBox") as HTMLInputElement);
+  if (searchBox) {
+    searchBox.addEventListener("blur", () => {
+      setTimeout(() => {
+        let ac = document.getElementById("autocomplete");
+        if (ac) {
+          ac.innerHTML = "";
+        }
+      }, 1000);
+    })
 
-  searchBox.addEventListener("input", autoComplete)
-  searchBox.addEventListener("focus", autoComplete)
+    searchBox.addEventListener("input", autoComplete)
+    searchBox.addEventListener("focus", autoComplete)
+  }
+} catch (e) {
+  // In Node/test environment, document is not defined
+  console.log("Document API not available - running in test environment");
 }
 
 export function initDB() {
@@ -92,7 +98,7 @@ export function searchByName(name: string) {
 }
 
 function genAutocomplete(results: Array<string>) {
-  let acDiv = document.getElementById("autocomplete");
+  let acDiv = (document.getElementById("autocomplete") as HTMLDivElement);
   let acList = document.createElement("div");
   acList.className = "list-group";
   for (let result of results) {
