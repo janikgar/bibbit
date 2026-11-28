@@ -1,13 +1,22 @@
-FROM node:26.8.1-bullseye as builder
+FROM oven/bun:1 AS base
+WORKDIR /usr/src/app
 
-RUN mkdir -p /app
-WORKDIR /app
-ADD package-lock.json package.json tsconfig.json webpack.config.js /app/
-COPY dist /app/dist
-COPY src /app/src
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lock /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
 
-RUN npm install --save-dev && \
-    npm run build
+RUN mkdir -p /temp/prod
+COPY package.json bun.lock /temp/prod/
+RUN cd /temp/prod && bun install --frozen-lockfile --production
 
-FROM nginx:1.31.9-alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+FROM base AS prerelease
+COPY --from=install /temp/dev/node_modules node_modules
+COPY . .
+
+ENV NODE_ENV=production
+RUN bun run test
+RUN bun run build
+
+FROM dhi.io/nginx:1.31@sha256:2f1052f34665960b0ccc99b6a88f374f0b690e058ef104f827468dcadbe442ac
+COPY --from=prerelease /usr/src/app/dist /usr/share/nginx/html

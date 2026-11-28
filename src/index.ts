@@ -1,5 +1,4 @@
 import loadRecipes from "./cook";
-//import 'bootstrap';
 import { initDB } from './search';
 
 const registerServiceWorker = async () => {
@@ -29,6 +28,32 @@ const registerServiceWorker = async () => {
   }
 }
 
+const menuToggle = () => {
+  let menu = document.querySelector('.small-offscreen') as HTMLElement | null;
+  if (menu) {
+    console.log(menu.ariaHidden);
+    switch (menu.ariaHidden) {
+      case "true":
+        menu.style.left = "0";
+        menu.ariaHidden = "false";
+        break;
+      case "false":
+        menu.style.left = "100vw";
+        menu.ariaHidden = "true";
+    }
+  }
+}
+
+const bindToggleMenu = () => {
+  let toggler = document.getElementById("menu-toggle-btn");
+  if (toggler) {
+    toggler.onclick = menuToggle;
+  } else {
+    alert("could not find toggler");
+  }
+}
+
 registerServiceWorker();
+bindToggleMenu();
 initDB();
 loadRecipes();

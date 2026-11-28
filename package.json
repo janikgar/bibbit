@@ -5,6 +5,7 @@
   "browser": "index.js",
   "scripts": {
     "build": "bun x webpack -c webpack.config.js",
+    "test": "echo \"tests TBD\" && exit 0",
     "serve": "bun x webpack serve"
   },
   "author": "",

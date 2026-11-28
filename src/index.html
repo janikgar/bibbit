@@ -10,21 +10,24 @@
     <link href="./favicon.ico" rel="icon">
     <title>Bibbit</title>
   </head>
-  <body class="custom bg-dark">
+  <body>
     <div id="bodyDiv" class="container">
       <nav>
         <ul>
+          <li id="menu-toggle">
+            <button id="menu-toggle-btn" class="outline">...</button>
+          </li>
           <li>
-            <a class="nav-link active" aria-current="page" href="#">
-              <h1>B<small>ibbit</small></h1>
-            </a>
+            <a href="#" class="secondary"><h3>Bibbit</h3></a>
           </li>
-          <li class="nav-item">
-          </li>
+        </ul>
+        <ul class="small-offscreen" aria-hidden="true">
           <li>
             <form role="search" class="search">
               <div style="position: relative;">
-                <input type="search" placeholder="Search" aria-label="Search" id="searchBox" autocomplete="off" aria-label="Search">
+                <span>
+                  <input type="search" placeholder="Search" aria-label="Search" id="searchBox" autocomplete="off" aria-label="Search">
+                </span>
                 <div id="autocomplete" class="box-shadow" style="z-index: 999; position: absolute; width: 100%; top: 40px;"></div>
               </div>
             </form>
@@ -39,7 +42,7 @@
             </details>
           </li>
           <li>
-              <button class="btn btn-outline-secondary" id="refreshBtn">Sync Recipes</button>
+              <button class="btn btn-outline-secondary" id="refreshBtn">Sync</button>
           </li>
         </ul>
       </nav>
