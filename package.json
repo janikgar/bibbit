@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@cooklang/cooklang": "^0.20.0",
+    "@cooklang/cooklang": "^0.22.0",
     "@picocss/pico": "^2.1.1",
     "bootstrap": "^5.3.9",
     "postcss-loader": "^8.2.2",
